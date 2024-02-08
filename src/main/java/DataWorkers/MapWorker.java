@@ -1,4 +1,4 @@
-package DAOWorkers;
+package DataWorkers;
 
 import Utils.Interfaces.HasId;
 
@@ -7,7 +7,7 @@ import java.util.List;
 
 // FOR TESTING PURPOSES
 
-public class MapWorker<T extends HasId> implements DAOWorker<T> {
+public class MapWorker<T extends HasId> implements DataWorker<T> {
     private final HashMap<String, T> bs;
 
     public MapWorker(HashMap<String, T> bs) {

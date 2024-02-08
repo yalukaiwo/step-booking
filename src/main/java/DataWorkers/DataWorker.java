@@ -1,9 +1,9 @@
-package DAOWorkers;
+package DataWorkers;
 
 import java.io.*;
 import java.util.List;
 
-public interface DAOWorker<T> {
+public interface DataWorker<T> {
     void saveAll(List<T> xs) throws IOException;
 
     List<T> readAll() throws IOException;

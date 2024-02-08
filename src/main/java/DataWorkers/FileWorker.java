@@ -1,10 +1,10 @@
-package DAOWorkers;
+package DataWorkers;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileWorker<T> implements DAOWorker<T> {
+public class FileWorker<T> implements DataWorker<T> {
     private final File f;
 
     public FileWorker(File f) {

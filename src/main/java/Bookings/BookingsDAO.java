@@ -1,15 +1,15 @@
 package Bookings;
 
-import DAOWorkers.FileWorker;
-import DAOWorkers.MapWorker;
-import DAOWorkers.DAOWorker;
+import DataWorkers.FileWorker;
+import DataWorkers.MapWorker;
+import DataWorkers.DataWorker;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
 public class BookingsDAO {
-    private final DAOWorker<Booking> worker;
+    private final DataWorker<Booking> worker;
 
     public BookingsDAO(File f) {
         this.worker = new FileWorker<>(f);

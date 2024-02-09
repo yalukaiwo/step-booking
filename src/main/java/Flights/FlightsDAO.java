@@ -3,12 +3,13 @@ package Flights;
 import DataWorkers.DataWorker;
 import DataWorkers.FileWorker;
 import DataWorkers.MapWorker;
+import Utils.Interfaces.DAO;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class FlightsDAO {
+public class FlightsDAO implements DAO<Flight> {
     private final DataWorker<Flight> worker;
 
     public FlightsDAO(File f) {

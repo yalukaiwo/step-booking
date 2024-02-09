@@ -3,12 +3,14 @@ package Bookings;
 import DataWorkers.FileWorker;
 import DataWorkers.MapWorker;
 import DataWorkers.DataWorker;
+import Flights.Flight;
+import Utils.Interfaces.DAO;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class BookingsDAO {
+public class BookingsDAO implements DAO<Booking> {
     private final DataWorker<Booking> worker;
 
     public BookingsDAO(File f) {

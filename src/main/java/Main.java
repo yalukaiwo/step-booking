@@ -33,5 +33,6 @@ public class Main {
         b.delete("123");
         System.out.println(b.readAll());
         System.out.println(f.readAll());
+        System.out.println("Hello");
     }
 }

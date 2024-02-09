@@ -15,18 +15,24 @@ public class Flight implements HasId, Serializable {
     private final int maxPassengers;
     private int passengers;
     private final String id;
+    private final long tripTime;
 
-    public static String generateId(String origin, String destination, long departureTime, int maxPassengers) {
+    public long getTripTime() {
+        return tripTime;
+    }
+
+    private String generateFlightId(String origin, String destination, long departureTime, int maxPassengers) {
         return "f@" + origin.trim().toLowerCase().split(" ")[0] + "_" + destination.trim().toLowerCase().split(" ")[0] + "_" + departureTime + "_" + maxPassengers;
     }
 
-    public Flight(String destination, long departureTime, int maxPassengers) {
-        this.departureTime = departureTime;
-        this.origin = "Kyiv";
+    // Конструктор класу
+    public Flight(String origin, String destination, long departureTime, long tripTime, int maxPassengers, int seats) {
+        this.origin = origin;
         this.destination = destination;
+        this.departureTime = departureTime;
         this.maxPassengers = maxPassengers;
-        this.passengers = 0;
-        this.id = generateId(origin, destination, departureTime, maxPassengers);
+        this.tripTime = tripTime;
+        this.id = generateFlightId(origin, destination, departureTime, seats);
     }
 
     public void incrementPassengers(int amount) throws PassengerOverflowException {
@@ -76,5 +82,9 @@ public class Flight implements HasId, Serializable {
 
     public int getPassengers() {
         return passengers;
+    }
+
+    public long getArrivalTime() {
+        return this.departureTime + tripTime;
     }
 }

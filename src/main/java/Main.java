@@ -1,37 +1,23 @@
-import Bookings.Booking;
-import Bookings.BookingsDAO;
-import Flights.Flight;
-import Flights.FlightsDAO;
+import bookings.BookingsController;
+import bookings.BookingsDAO;
+import bookings.BookingsService;
+import console.ConsoleApp;
+import flights.FlightsController;
+import flights.FlightsDAO;
+import flights.FlightsService;
+import users.UsersController;
+import users.UsersDAO;
+import users.UsersService;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        File bf = new File("bookings.bin");
-        File ff = new File("flights.bin");
-
-        BookingsDAO b = new BookingsDAO(bf);
-        FlightsDAO f = new FlightsDAO(ff);
-
-        Flight fl = new Flight("Deli", 123, 3);
-
-        f.save(fl);
-
-        System.out.println(new Booking(fl, new ArrayList<>()));
-        Booking bk = new Booking(new Flight( "Deli", 123, 421), new ArrayList<>());
-        Booking bd = new Booking(new Flight( "Deli", 123, 421), new ArrayList<>());
-        System.out.println(new Flight( "Deli", 123, 421));
-        b.save(bk);
-        System.out.println(b.readAll());
-        System.out.println(b.read("123"));
-        b.save(bd);
-        System.out.println(b.readAll());
-        System.out.println(b.read("123"));
-        b.delete("1243");
-        b.delete("123");
-        System.out.println(b.readAll());
-        System.out.println(f.readAll());
+        UsersController usersController = new UsersController(new UsersService(new UsersDAO(new File("users.bin"))));
+        BookingsController bookingsController = new BookingsController(new BookingsService(new BookingsDAO(new File("bookings.bin"))));
+        FlightsController flightsController = new FlightsController(new FlightsService(new FlightsDAO(new File("flights.bin"))));
+        ConsoleApp consoleApp = new ConsoleApp(usersController, bookingsController, flightsController);
+        consoleApp.start();
     }
 }

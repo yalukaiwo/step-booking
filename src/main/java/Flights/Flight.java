@@ -20,9 +20,9 @@ public class Flight implements HasId, Serializable {
         return "f@" + origin.trim().toLowerCase().split(" ")[0] + "_" + destination.trim().toLowerCase().split(" ")[0] + "_" + departureTime + "_" + maxPassengers;
     }
 
-    public Flight(String destination, long departureTime, int maxPassengers) {
+    public Flight(String origin, String destination, long departureTime, int maxPassengers) {
         this.departureTime = departureTime;
-        this.origin = "Kyiv";
+        this.origin = origin;
         this.destination = destination;
         this.maxPassengers = maxPassengers;
         this.passengers = 0;

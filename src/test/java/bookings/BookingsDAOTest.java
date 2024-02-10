@@ -1,6 +1,6 @@
-package Bookings;
+package bookings;
 
-import Flights.Flight;
+import flights.Flight;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -1,6 +1,6 @@
 package users;
 
-import Utils.Interfaces.HasId;
+import utils.interfaces.HasId;
 
 import java.io.Serializable;
 

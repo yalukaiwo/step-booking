@@ -1,4 +1,4 @@
-package Utils.Interfaces;
+package utils.interfaces;
 
 public interface HasId {
     String getId();

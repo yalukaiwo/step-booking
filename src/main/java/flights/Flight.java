@@ -1,32 +1,37 @@
-package Flights;
+package flights;
 
-import Utils.Exceptions.PassengerOverflowException;
-import Utils.Interfaces.HasId;
+import utils.exceptions.PassengerOverflowException;
+import utils.interfaces.HasId;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 public class Flight implements HasId, Serializable {
-    private final String origin;
-    private final String destination;
+    private final City origin;
+    private final City destination;
     private final long departureTime;
     private final int maxPassengers;
-    private int passengers;
     private final String id;
+    private final double ticketCost;
+    private final Airline airline;
+    private int passengers;
 
-    public static String generateId(String origin, String destination, long departureTime, int maxPassengers) {
-        return "f@" + origin.trim().toLowerCase().split(" ")[0] + "_" + destination.trim().toLowerCase().split(" ")[0] + "_" + departureTime + "_" + maxPassengers;
-    }
-
-    public Flight(String origin, String destination, long departureTime, int maxPassengers) {
+    public Flight(City origin, City destination, Airline airline, double ticketCost, long departureTime, int maxPassengers) {
         this.departureTime = departureTime;
+        this.ticketCost = airline.getCost(ticketCost);
         this.origin = origin;
         this.destination = destination;
         this.maxPassengers = maxPassengers;
         this.passengers = 0;
-        this.id = generateId(origin, destination, departureTime, maxPassengers);
+        this.airline = airline;
+        this.id = generateId(origin, destination, airline, departureTime, maxPassengers);
+    }
+
+    public static String generateId(City origin, City destination, Airline airline, long departureTime, int maxPassengers) {
+        return "f@" + origin.toString().trim().toLowerCase().split(" ")[0] + "_" + destination.toString().trim().toLowerCase().split(" ")[0] + "_" + airline.toString() + "_" + departureTime + "_" + maxPassengers;
     }
 
     public void incrementPassengers(int amount) throws PassengerOverflowException {
@@ -37,6 +42,12 @@ public class Flight implements HasId, Serializable {
     public void decrementPassengers(int amount) throws PassengerOverflowException {
         if (passengers - amount < 0) throw new PassengerOverflowException();
         this.passengers = passengers - amount;
+    }
+
+    public long getHoursBeforeDeparting() {
+        Duration d = Duration.between(Instant.now(), Instant.ofEpochMilli(departureTime));
+
+        return d.toHours();
     }
 
     @Override
@@ -58,11 +69,11 @@ public class Flight implements HasId, Serializable {
         return "Flight{origin: " + origin + ", destination: " + destination + ", departureTime: " + LocalDateTime.ofInstant(Instant.ofEpochMilli(departureTime), ZoneId.systemDefault()) + ", passengers: " + passengers + ", maxPassengers: " + maxPassengers + "}";
     }
 
-    public String getDestination() {
+    public City getDestination() {
         return destination;
     }
 
-    public String getOrigin() {
+    public City getOrigin() {
         return origin;
     }
 
@@ -76,5 +87,17 @@ public class Flight implements HasId, Serializable {
 
     public int getPassengers() {
         return passengers;
+    }
+
+    public String getAirline() {
+        return airline.toString();
+    }
+
+    public double getTicketCost() {
+        return ticketCost;
+    }
+
+    public int getFreeSeats() {
+        return maxPassengers - passengers;
     }
 }

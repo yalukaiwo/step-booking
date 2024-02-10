@@ -1,10 +1,9 @@
 package users;
 
-import Bookings.Booking;
-import Flights.Flight;
-import Flights.FlightService;
-import Flights.FlightsRandomaizer;
-import console.BookingService;
+import bookings.Booking;
+import flights.Flight;
+import flights.FlightsService;
+import bookings.BookingsService;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -15,14 +14,14 @@ import java.util.Scanner;
 
 public class UserController {
     private final UserService userService;
-    private final BookingService bookingService;
-    private final FlightService flightService;
+    private final BookingsService bookingService;
+    private final FlightsService flightService;
     private Optional<User> currentUser;
     private final DisplayMenu displayMenu;
 
     private final OperationApp[] operations;
 
-    public UserController(UserService userService, BookingService bookingService, FlightService flightService) {
+    public UserController(UserService userService, BookingsService bookingService, FlightsService flightService) {
         this.userService = userService;
         this.bookingService = bookingService;
         this.flightService = flightService;
@@ -250,6 +249,7 @@ public class UserController {
     }
 
     private void viewFlightDetails() {
+        // METHOD ADAPTED TO NEW FLIGHT STRUCTURE
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter the flight number: ");
         String flightNumber = scanner.nextLine();
@@ -258,13 +258,12 @@ public class UserController {
         if (optionalFlight.isPresent()) {
             System.out.println("Flight Details: ");
             Flight flight = optionalFlight.get();
-            System.out.println("№: " + flight.getNumber());
+            System.out.println("№: " + flight.getId());
             System.out.println("Flight ID:" + flight.getId());
-            System.out.println("From: " + flight.getDate());
+            System.out.println("From: " + flight.getDestination());
             System.out.println("To: " + flight.getOrigin());
-            System.out.println("Date: " + flight.getDestination());
+            System.out.println("Date: " + flight.getDepartureTime());
             System.out.println("Airline: " + flight.getAirline());
-            System.out.println("Airplane: " + flight.getAirplane());
         } else {
             System.out.println("Flight with number " + flightNumber + " not found.");
         }

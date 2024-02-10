@@ -1,10 +1,9 @@
-package Bookings;
+package bookings;
 
-import DataWorkers.FileWorker;
-import DataWorkers.MapWorker;
-import DataWorkers.DataWorker;
-import Flights.Flight;
-import Utils.Interfaces.DAO;
+import workers.FileWorker;
+import workers.MapWorker;
+import workers.DataWorker;
+import utils.interfaces.DAO;
 
 import java.io.File;
 import java.io.IOException;

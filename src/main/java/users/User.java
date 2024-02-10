@@ -1,5 +1,6 @@
 package users;
 
+import passenger.Passenger;
 import utils.interfaces.HasId;
 
 import java.io.Serializable;
@@ -8,6 +9,7 @@ public class User implements HasId, Serializable {
     private String id;
     private String username;
     private String password;
+
 
     public User(String id) {
         this.id = id;

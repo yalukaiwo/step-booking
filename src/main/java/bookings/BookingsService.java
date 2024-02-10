@@ -1,7 +1,7 @@
 package bookings;
 
 import flights.Flight;
-import person.Person;
+import passenger.Passenger;
 import utils.exceptions.BookingNotFoundException;
 
 import java.io.IOException;
@@ -15,7 +15,7 @@ public class BookingsService {
         this.db = dao;
     }
 
-    public Booking create(Flight flight, List<Person> passengers) throws IOException {
+    public Booking create(Flight flight, List<Passenger> passengers) throws IOException {
         Booking b = new Booking(flight, passengers);
         db.save(b);
         return b;

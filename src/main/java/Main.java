@@ -1,5 +1,6 @@
 import bookings.Booking;
 import bookings.BookingsDAO;
+import console.Console;
 import flights.Flight;
 import flights.FlightsDAO;
 
@@ -9,6 +10,6 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        System.out.println(1);
+//        Console console = new Console();
     }
 }

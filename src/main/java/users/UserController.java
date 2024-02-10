@@ -237,7 +237,7 @@ public class UserController {
     private void viewTimetable() {
         try {
             FlightsRandomaizer randomizer = new FlightsRandomaizer(10, 1, 12, 50, 300);
-            List<Flight> flights = randomizer.get();
+            List<Flight> flights = flightController.getAll();
             System.out.println("Flight Timetable:");
             for (Flight flight : flights) {
                 System.out.println(flight);

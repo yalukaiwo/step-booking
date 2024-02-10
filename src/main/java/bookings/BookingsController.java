@@ -2,7 +2,7 @@ package bookings;
 
 import flights.Flight;
 import flights.FlightsController;
-import person.Person;
+import passenger.Passenger;
 import utils.exceptions.BookingNotFoundException;
 import utils.exceptions.FlightNotFoundException;
 import utils.exceptions.PassengerOverflowException;
@@ -18,7 +18,7 @@ public class BookingsController {
         this.service = service;
     }
 
-    public Optional<Booking> create(Flight flight, List<Person> passengers) throws IOException {
+    public Optional<Booking> create(Flight flight, List<Passenger> passengers) throws IOException {
         try {
             flight.incrementPassengers(passengers.size());
             return Optional.of(service.create(flight, passengers));
@@ -27,7 +27,7 @@ public class BookingsController {
         }
     }
 
-    public Optional<Booking> create(Flight flight, Person... passengers) throws IOException {
+    public Optional<Booking> create(Flight flight, Passenger... passengers) throws IOException {
         try {
             flight.incrementPassengers(passengers.length);
             return Optional.of(service.create(flight, List.of(passengers)));

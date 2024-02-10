@@ -1,7 +1,7 @@
 package bookings;
 
 import flights.Flight;
-import person.Person;
+import passenger.Passenger;
 import utils.interfaces.HasId;
 
 import java.io.Serializable;
@@ -10,13 +10,13 @@ import java.util.List;
 public class Booking implements HasId, Serializable {
     private final String id;
     private final String flightId;
-    private final List<Person> passengers;
+    private final List<Passenger> passengers;
 
-    public static String generateId(Flight flight, List<Person> passengers) {
+    public static String generateId(Flight flight, List<Passenger> passengers) {
         return "b@" + flight.getOrigin().toString().trim().toLowerCase().split(" ")[0] + "_" + flight.getDestination().toString().trim().toLowerCase().split(" ")[0] + "_" + flight.getDepartureTime() + "_" + flight.getMaxPassengers() + "_" + flight.getPassengers() + "_" + passengers.size();
     }
 
-    public Booking(Flight flight, List<Person> passengers) {
+    public Booking(Flight flight, List<Passenger> passengers) {
         this.id = generateId(flight, passengers);
         this.passengers = passengers;
         this.flightId = flight.getId();
@@ -45,7 +45,7 @@ public class Booking implements HasId, Serializable {
         return flightId;
     }
 
-    public List<Person> getPassengers() {
+    public List<Passenger> getPassengers() {
         return passengers;
     }
 }

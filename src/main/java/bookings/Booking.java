@@ -1,8 +1,8 @@
-package Bookings;
+package bookings;
 
-import Flights.Flight;
-import Person.Person;
-import Utils.Interfaces.HasId;
+import flights.Flight;
+import passenger.Passenger;
+import utils.interfaces.HasId;
 
 import java.io.Serializable;
 import java.util.List;
@@ -10,13 +10,13 @@ import java.util.List;
 public class Booking implements HasId, Serializable {
     private final String id;
     private final String flightId;
-    private final List<Person> passengers;
+    private final List<Passenger> passengers;
 
-    public static String generateId(Flight flight, List<Person> passengers) {
-        return "b@" + flight.getOrigin().trim().toLowerCase().split(" ")[0] + "_" + flight.getDestination().trim().toLowerCase().split(" ")[0] + "_" + flight.getDepartureTime() + "_" + flight.getMaxPassengers() + "_" + flight.getPassengers() + "_" + passengers.size();
+    public static String generateId(Flight flight, List<Passenger> passengers) {
+        return "b@" + flight.getOrigin().toString().trim().toLowerCase().split(" ")[0] + "_" + flight.getDestination().toString().trim().toLowerCase().split(" ")[0] + "_" + flight.getDepartureTime() + "_" + flight.getMaxPassengers() + "_" + flight.getPassengers() + "_" + passengers.size();
     }
 
-    public Booking(Flight flight, List<Person> passengers) {
+    public Booking(Flight flight, List<Passenger> passengers) {
         this.id = generateId(flight, passengers);
         this.passengers = passengers;
         this.flightId = flight.getId();
@@ -39,5 +39,13 @@ public class Booking implements HasId, Serializable {
     @Override
     public String toString() {
         return "Booking{id: " + this.id + "}";
+    }
+
+    public String getFlightId() {
+        return flightId;
+    }
+
+    public List<Passenger> getPassengers() {
+        return passengers;
     }
 }

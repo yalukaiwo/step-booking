@@ -1,6 +1,6 @@
-package DataWorkers;
+package workers;
 
-import Utils.Interfaces.HasId;
+import utils.interfaces.HasId;
 
 import java.util.HashMap;
 import java.util.List;

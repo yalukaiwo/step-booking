@@ -1,12 +1,12 @@
-package Person;
+package passenger;
 
 import java.io.Serializable;
 
-public class Person implements Serializable {
+public class Passenger implements Serializable {
     private final String name;
     private final String surname;
 
-    public Person(String name, String surname) {
+    public Passenger(String name, String surname) {
         this.name = name;
         this.surname = surname;
     }
@@ -16,7 +16,7 @@ public class Person implements Serializable {
         if (this == o) return true;
         if (o == null) return false;
         if (this.getClass() != o.getClass()) return false;
-        Person p = (Person) o;
+        Passenger p = (Passenger) o;
         return (name.equals(p.name) && surname.equals(p.surname));
     }
 

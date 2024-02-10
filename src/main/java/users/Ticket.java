@@ -1,8 +1,8 @@
 package users;
 
-import Flights.Airline;
-import Flights.Flight;
-import Utils.Interfaces.HasId;
+import flights.Airline;
+import flights.Flight;
+import utils.interfaces.HasId;
 
 import java.io.Serializable;
 import java.util.Optional;
@@ -19,7 +19,6 @@ public abstract class Ticket implements Serializable, HasId {
     int costPercent = getCostPercent(airline);
     this.cost = cost + ((cost * costPercent) / 100);
     this.type = type;
-    this.flight.addTicket(this);
     this.airline = airline;
   }
 

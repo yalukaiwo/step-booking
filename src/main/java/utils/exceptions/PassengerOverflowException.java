@@ -1,4 +1,4 @@
-package Utils.Exceptions;
+package utils.exceptions;
 
 public class PassengerOverflowException extends Exception {
     public PassengerOverflowException() {

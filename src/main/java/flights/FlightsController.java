@@ -7,7 +7,10 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class FlightsController {
     private static final int minSeats = 50;
@@ -37,13 +40,9 @@ public class FlightsController {
     }
 
     public List<Flight> generateRandom(int amount) throws IOException {
-        ArrayList<Flight> fs = new ArrayList<>();
-
-        for (int i = 0; i < amount; i++) {
-            fs.add(generateRandom());
-        }
-
-        return fs;
+        return IntStream.range(0, amount)
+                .mapToObj(i -> generateRandom())
+                .collect(Collectors.toList());
     }
 
     public List<Flight> getAllDepartingIn(int hours) throws IOException {
@@ -72,5 +71,23 @@ public class FlightsController {
 
     public List<Flight> getAll() throws IOException {
         return service.getAll();
+    }
+
+    public Optional<Flight> read(String id) throws IOException {
+        return service.read(id);
+    }
+
+    public void save(Flight b) throws IOException {
+        service.save(b);
+    }
+
+    public void saveAll(List<Flight> xs) throws IOException {
+        service.saveAll(xs);
+    }
+
+    public List<Flight> searchFlight(City origin, City destination) throws IOException {
+        return service.getAll().stream()
+                .filter(f -> f.getOrigin().equals(origin) && f.getDestination().equals(destination))
+                .collect(Collectors.toList());
     }
 }

@@ -6,20 +6,21 @@ import utils.interfaces.HasId;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 public class Booking implements HasId, Serializable {
     private final String id;
-    private final String flightId;
     private final List<Passenger> passengers;
+    private final Flight flight;
 
     public static String generateId(Flight flight, List<Passenger> passengers) {
         return "b@" + flight.getOrigin().toString().trim().toLowerCase().split(" ")[0] + "_" + flight.getDestination().toString().trim().toLowerCase().split(" ")[0] + "_" + flight.getDepartureTime() + "_" + flight.getMaxPassengers() + "_" + flight.getPassengers() + "_" + passengers.size();
     }
 
     public Booking(Flight flight, List<Passenger> passengers) {
+        this.flight = flight;
         this.id = generateId(flight, passengers);
         this.passengers = passengers;
-        this.flightId = flight.getId();
     }
 
     @Override
@@ -37,12 +38,17 @@ public class Booking implements HasId, Serializable {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(id, passengers, flight);
+    }
+
+    @Override
     public String toString() {
         return "Booking{id: " + this.id + "}";
     }
 
-    public String getFlightId() {
-        return flightId;
+    public Flight getFlight() {
+        return flight;
     }
 
     public List<Passenger> getPassengers() {

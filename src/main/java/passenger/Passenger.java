@@ -1,6 +1,9 @@
 package passenger;
 
+import users.User;
+
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Passenger implements Serializable {
     private final String name;
@@ -10,6 +13,14 @@ public class Passenger implements Serializable {
         this.name = name;
         this.surname = surname;
     }
+  
+    public String getName() {
+        return name;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -18,6 +29,11 @@ public class Passenger implements Serializable {
         if (this.getClass() != o.getClass()) return false;
         Passenger p = (Passenger) o;
         return (name.equals(p.name) && surname.equals(p.surname));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, surname);
     }
 
     @Override

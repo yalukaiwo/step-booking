@@ -3,11 +3,14 @@ package flights;
 import utils.exceptions.PassengerOverflowException;
 import utils.interfaces.HasId;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Objects;
+import java.util.Optional;
 
 public class Flight implements HasId, Serializable {
     private final City origin;
@@ -62,6 +65,11 @@ public class Flight implements HasId, Serializable {
         if (this.getClass() != o.getClass()) return false;
         Flight f = (Flight) o;
         return this.getId().equals(f.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(origin, destination, departureTime, maxPassengers, id, ticketCost, airline, passengers);
     }
 
     @Override

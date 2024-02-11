@@ -3,7 +3,9 @@ package flights;
 import utils.exceptions.FlightNotFoundException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class FlightsService {
@@ -35,6 +37,18 @@ public class FlightsService {
 
     public List<Flight> getAll() throws IOException {
         return db.readAll();
+    }
+
+    public Optional<Flight> read(String id) throws IOException {
+        return db.read(id);
+    }
+
+    public void save(Flight b) throws IOException {
+        db.save(b);
+    }
+
+    public void saveAll(List<Flight> xs) throws IOException {
+        db.saveAll(xs);
     }
 
     public void clear() throws IOException {

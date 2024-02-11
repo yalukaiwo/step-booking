@@ -2,9 +2,7 @@ package bookings;
 
 import flights.Flight;
 import passenger.Passenger;
-import users.User;
 import utils.exceptions.BookingNotFoundException;
-import utils.exceptions.PassengerOverflowException;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,8 +15,8 @@ public class BookingsService {
         this.db = dao;
     }
 
-    public Booking create(Flight flight, User user, List<Passenger> passengers) throws IOException {
-        Booking b = new Booking(flight, passengers, user);
+    public Booking create(Flight flight, List<Passenger> passengers) throws IOException {
+        Booking b = new Booking(flight, passengers);
         db.save(b);
         return b;
     }

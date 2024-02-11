@@ -79,6 +79,18 @@ public class FlightsController {
         return service.getAll();
     }
 
+    public Optional<Flight> read(String id) throws IOException {
+        return service.read(id);
+    }
+
+    public void save(Flight b) throws IOException {
+        service.save(b);
+    }
+
+    public void saveAll(List<Flight> xs) throws IOException {
+        service.saveAll(xs);
+    }
+
     public List<Flight> searchFlight(City origin, City destination) throws IOException {
         return service.getAll().stream()
                 .filter(f -> f.getOrigin().equals(origin) && f.getDestination().equals(destination))

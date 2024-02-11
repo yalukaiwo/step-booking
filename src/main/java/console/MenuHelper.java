@@ -15,7 +15,7 @@ public class MenuHelper {
                 String input = promptString(message);
                 validateName(input);
                 return formatName(input);
-            } catch (IllegalArgumentException | InvalidNameException e) {
+            } catch (InvalidNameException e) {
                 System.out.println("Error: " + e.getMessage());
             }
         }

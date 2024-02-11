@@ -8,7 +8,9 @@ import flights.FlightsController;
 import passenger.Passenger;
 import users.User;
 import users.UsersController;
+import utils.exceptions.FlightNotFoundException;
 import utils.exceptions.InvalidPasswordException;
+import utils.exceptions.UserRegisterException;
 
 import java.io.IOException;
 import java.util.*;
@@ -20,6 +22,7 @@ public class ConsoleApp {
     private Optional<User> currentUser;
     private final OperationApp[] operations;
     private final MenuHelper menuDisplayHelper;
+    private static final Scanner scanner = new Scanner(System.in);
 
     public ConsoleApp(UsersController usersController, BookingsController bookingsController, FlightsController flightsController) {
         this.usersController = usersController;
@@ -39,8 +42,7 @@ public class ConsoleApp {
         };
     }
 
-    public void start() throws IOException {
-        Scanner scanner = new Scanner(System.in);
+    public void start() throws IOException, FlightNotFoundException {
         menuDisplayHelper.visitor();
 
         boolean sessionActive = true;
@@ -66,8 +68,7 @@ public class ConsoleApp {
         }
     }
 
-    public void login() throws IOException {
-        Scanner scanner = new Scanner(System.in);
+    public void login() throws IOException, FlightNotFoundException {
         System.out.println("Welcome to the Flight Reservation System!");
         System.out.println("-------------------------------------------");
         System.out.println("Please log in to continue.");
@@ -100,8 +101,7 @@ public class ConsoleApp {
         }
     }
 
-    private void signUp() {
-        Scanner scanner = new Scanner(System.in);
+    private void signUp() throws IOException {
         System.out.println("Sign Up");
         String username = menuDisplayHelper.promptValidName("Enter your username");
 
@@ -136,13 +136,12 @@ public class ConsoleApp {
             } else {
                 System.out.println("Username already exists. Please choose a different one.");
             }
-        } catch (IOException e) {
+        } catch (UserRegisterException e) {
             System.out.println("Error occurred while signing up: " + e.getMessage());
         }
     }
 
     private String generateRandomPassword() {
-        // Generate a random password with a combination of uppercase letters, lowercase letters, numbers, and symbols
         StringBuilder password = new StringBuilder();
         Random random = new Random();
         String upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -175,8 +174,9 @@ public class ConsoleApp {
         System.out.println("Exiting FLIGHT RESERVATION SYSTEM. Goodbye!");
     }
 
-    private void showMainMenu() throws IOException {
-        Scanner scanner = new Scanner(System.in);
+    private void showMainMenu() throws IOException, FlightNotFoundException {
+        List<Flight> xs = flightsController.generateRandom(20);
+        flightsController.saveAll(xs);
         boolean sessionActive = true;
 
         while (sessionActive) {
@@ -207,25 +207,20 @@ public class ConsoleApp {
         }
     }
 
-    private void viewTimetable() {
-        try {
-            flightsController.generateRandom(20);
-            List<Flight> flights = flightsController.getAll();
-            System.out.println("Flight Timetable:");
-            for (Flight flight : flights) {
-                System.out.println(flight);
-            }
-            showMainMenu();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    private void viewTimetable() throws IOException, FlightNotFoundException {
+        List<Flight> flights = flightsController.getAll();
+        System.out.println("Flight Timetable:");
+        for (Flight flight : flights) {
+            System.out.println(flight);
         }
+        showMainMenu();
     }
 
-    private void viewFlightDetails() {
+    private void viewFlightDetails() throws FlightNotFoundException, IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter the flight number: ");
         String flightNumber = scanner.nextLine();
-        Optional <Flight> optionalFlight = flightsController.generateRandom();
+        Optional<Flight> optionalFlight = Optional.ofNullable(flightsController.getById(flightNumber));
         if (optionalFlight.isPresent()) {
             System.out.println("Flight Details: ");
             Flight flight = optionalFlight.get();
@@ -273,23 +268,19 @@ public class ConsoleApp {
                     // Book the flight
                     if (currentUser.isPresent()) {
                         User user = currentUser.get();
-                        try {
-                            List<Passenger> passengers = new ArrayList<>();
-                            for (int i = 0; i < numPassengers; i++) {
-                                // Assuming you have methods to retrieve the name and surname of the user
-                                String name = passengers.get(i).getName();
-                                String surname = passengers.get(i).getSurname();
-                                passengers.add(new Passenger(name, surname));
-                            }
-                            Optional<Booking> bookingResult = bookingsController.create(selectedFlight, user, passengers);
-                            if (bookingResult.isPresent()) {
-                                user.addBooking(bookingResult.get());
-                                System.out.println("Flight booked successfully!");
-                            } else {
-                                System.out.println("Failed to book the flight. Please try again later.");
-                            }
-                        } catch (IOException e) {
-                            System.out.println("An error occurred while booking the flight: " + e.getMessage());
+                        List<Passenger> passengers = new ArrayList<>();
+                        for (int i = 0; i < numPassengers; i++) {
+                            // Assuming you have methods to retrieve the name and surname of the user
+                            String name = passengers.get(i).getName();
+                            String surname = passengers.get(i).getSurname();
+                            passengers.add(new Passenger(name, surname));
+                        }
+                        Optional<Booking> bookingResult = bookingsController.create(selectedFlight, passengers);
+                        if (bookingResult.isPresent()) {
+                            user.addBooking(bookingResult.get());
+                            System.out.println("Flight booked successfully!");
+                        } else {
+                            System.out.println("Failed to book the flight. Please try again later.");
                         }
                     } else {
                         System.out.println("Please log in to book the flight.");
@@ -308,7 +299,7 @@ public class ConsoleApp {
     private void showUserBookings() throws IOException {
         if (currentUser.isPresent()) {
             User user = currentUser.get();
-            List<Booking> userBookings = bookingsController.getAll(user);
+            List<Booking> userBookings = user.getBookings();
             if (!userBookings.isEmpty()) {
                 System.out.println("Your ID: " + user.getId());
                 System.out.println("Name: " + user.getUsername());
@@ -337,7 +328,7 @@ public class ConsoleApp {
     private void cancelBooking() throws IOException {
         Scanner scanner = new Scanner(System.in);
         if (currentUser.isPresent()) {
-            List<Booking> userBookings = bookingsController.getAll(currentUser.get());
+            List<Booking> userBookings = bookingsController.getAll();
             if (!userBookings.isEmpty()) {
                 System.out.println("Your bookings:");
                 for (int i = 0; i < userBookings.size(); i++) {

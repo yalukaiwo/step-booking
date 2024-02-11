@@ -3,7 +3,6 @@ package bookings;
 import flights.Flight;
 import flights.FlightsController;
 import passenger.Passenger;
-import users.User;
 import utils.exceptions.BookingNotFoundException;
 import utils.exceptions.FlightNotFoundException;
 import utils.exceptions.PassengerOverflowException;
@@ -20,19 +19,19 @@ public class BookingsController {
         this.service = service;
     }
 
-    public Optional<Booking> create(Flight flight, User user, List<Passenger> passengers) throws IOException {
+    public Optional<Booking> create(Flight flight, List<Passenger> passengers) throws IOException {
         try {
             flight.incrementPassengers(1); // Increment passengers by 1 for the single user
-            return Optional.of(service.create(flight, user, passengers)); // Create booking with single user
+            return Optional.of(service.create(flight, passengers)); // Create booking with single user
         } catch (PassengerOverflowException e) {
             return Optional.empty();
         }
     }
 
-    public Optional<Booking> create(Flight flight, User user, Passenger... passengers) throws IOException {
+    public Optional<Booking> create(Flight flight, Passenger... passengers) throws IOException {
         try {
             flight.incrementPassengers(passengers.length); // Increment passengers by the number of provided passengers
-            return Optional.of(service.create(flight, user, List.of(passengers))); // Create booking with provided passengers
+            return Optional.of(service.create(flight, List.of(passengers))); // Create booking with provided passengers
         } catch (PassengerOverflowException e) {
             return Optional.empty();
         }
@@ -71,11 +70,8 @@ public class BookingsController {
         return service.getAll().stream().filter(b -> ids.contains(b.getId())).toList();
     }
 
-    public List<Booking> getAll(User user) throws IOException {
-        String userId = user.getId();
-        return service.getAll().stream()
-                .filter(booking -> booking.getUser().getId().equals(userId))
-                .collect(Collectors.toList());
+    public List<Booking> getAll() throws IOException {
+        return service.getAll();
     }
 
     public void clear() throws IOException {

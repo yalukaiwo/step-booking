@@ -1,7 +1,5 @@
 package passenger;
 
-import users.User;
-
 import java.io.Serializable;
 import java.util.Objects;
 

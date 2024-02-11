@@ -1,5 +1,6 @@
 package bookings;
 
+import logger.LoggerService;
 import workers.FileWorker;
 import workers.MapWorker;
 import workers.DataWorker;
@@ -23,6 +24,7 @@ public class BookingsDAO implements DAO<Booking> {
 
     public Optional<Booking> read(String id) throws IOException {
         List<Booking> bs = worker.readAll();
+        LoggerService.info("Trying to read booking with id: " + id);
         return bs.stream().filter(b -> Objects.equals(b.getId(), id)).findFirst();
     }
 
@@ -31,14 +33,17 @@ public class BookingsDAO implements DAO<Booking> {
         bs.remove(b);
         bs.add(b);
         worker.saveAll(bs);
+        LoggerService.info("Saved booking with id: " + b.getId());
     }
 
     public void delete(String id) throws IOException {
         List<Booking> bs = worker.readAll().stream().filter(b -> !b.getId().equals(id)).toList();
         worker.saveAll(bs);
+        LoggerService.info("Deleted booking with id: " + id);
     }
 
     public List<Booking> readAll() throws IOException {
+        LoggerService.info("Reading all bookings");
         return worker.readAll();
     }
 }

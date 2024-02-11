@@ -10,10 +10,6 @@ public class UsersService {
         this.userDao = userDAO;
     }
 
-    public Optional<User> read(String id) throws IOException {
-        return userDao.read(id);
-    }
-
     public void save(User u) throws IOException {
         userDao.save(u);
     }
@@ -34,24 +30,16 @@ public class UsersService {
                 .orElse(null);
     }
 
-    public User getById(String id) throws IOException {
-        return readAll()
-                .stream()
-                .filter(u -> u.getId() != null && u.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+    public Optional<User> getById(String id) throws IOException {
+        return userDao.read(id);
     }
 
-    public void addUser(User u) {
-        Map<String, User> us = new HashMap<>();
-        us.put(u.getUsername(), u);
-    }
-
-    public Optional<User> authenticate(String username, String password) {
-        Map<String, User> users = new HashMap<>();
-        User user = users.get(username);
-        if (user != null && user.getPassword().equals(password)) {
-            return Optional.of(user);
+    public Optional<User> authenticate(String username, String password) throws IOException {
+        // possibly, you could throw a UserNotFound exception if user.isEmpty(). (.findFirst().orElseThrow())
+        List<User> us = userDao.readAll();
+        Optional<User> user = us.stream().filter(u -> u.getUsername().equals(username)).findFirst();
+        if (user.isPresent() && user.get().getPassword().equals(password)) {
+            return user;
         } else {
             return Optional.empty();
         }

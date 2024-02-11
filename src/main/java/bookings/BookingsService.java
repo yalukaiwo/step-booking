@@ -21,6 +21,10 @@ public class BookingsService {
         return b;
     }
 
+    public void save(Booking b) throws IOException {
+        db.save(b);
+    }
+
     public void delete(Booking b) throws IOException {
         db.delete(b.getId());
     }

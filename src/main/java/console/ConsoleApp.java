@@ -42,7 +42,7 @@ public class ConsoleApp {
         };
     }
 
-    public void start() throws IOException, FlightNotFoundException {
+    public void start() throws IOException {
         menuDisplayHelper.visitor();
 
         boolean sessionActive = true;
@@ -68,7 +68,7 @@ public class ConsoleApp {
         }
     }
 
-    public void login() throws IOException, FlightNotFoundException {
+    public void login() throws IOException {
         System.out.println("Welcome to the Flight Reservation System!");
         System.out.println("-------------------------------------------");
         System.out.println("Please log in to continue.");
@@ -174,9 +174,11 @@ public class ConsoleApp {
         System.out.println("Exiting FLIGHT RESERVATION SYSTEM. Goodbye!");
     }
 
-    private void showMainMenu() throws IOException, FlightNotFoundException {
-        List<Flight> xs = flightsController.generateRandom(20);
-        flightsController.saveAll(xs);
+    private void generateRandomFlights() throws IOException {
+        flightsController.generateRandom(20);
+    }
+
+    private void showMainMenu() throws IOException {
         boolean sessionActive = true;
 
         while (sessionActive) {
@@ -207,7 +209,7 @@ public class ConsoleApp {
         }
     }
 
-    private void viewTimetable() throws IOException, FlightNotFoundException {
+    private void viewTimetable() throws IOException {
         List<Flight> flights = flightsController.getAll();
         System.out.println("Flight Timetable:");
         for (Flight flight : flights) {
@@ -216,11 +218,19 @@ public class ConsoleApp {
         showMainMenu();
     }
 
-    private void viewFlightDetails() throws FlightNotFoundException, IOException {
+    private void viewFlightDetails() throws IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter the flight number: ");
         String flightNumber = scanner.nextLine();
-        Optional<Flight> optionalFlight = Optional.ofNullable(flightsController.getById(flightNumber));
+        Optional<Flight> optionalFlight = Optional.empty();
+
+        // flight isn't optional. if it's not found - FlightNotFoundException is thrown.
+        try {
+            optionalFlight = Optional.of(flightsController.getById(flightNumber));
+        } catch (FlightNotFoundException e) {
+            // do nothing
+        }
+
         if (optionalFlight.isPresent()) {
             System.out.println("Flight Details: ");
             Flight flight = optionalFlight.get();
@@ -244,7 +254,7 @@ public class ConsoleApp {
         City destination = City.valueOf(scanner.nextLine());
         // You can add more search criteria such as date, number of passengers, etc.
 
-        List<Flight> searchResults = flightsController.searchFlight(origin, destination);
+        List<Flight> searchResults = flightsController.search(origin, destination);
 
         // Step 2: Display Search Results
         if (!searchResults.isEmpty()) {

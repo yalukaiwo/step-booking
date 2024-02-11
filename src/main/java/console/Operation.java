@@ -6,5 +6,5 @@ import java.io.IOException;
 
 @FunctionalInterface
 public interface Operation {
-    void operation() throws IOException, FlightNotFoundException;
+    void operation() throws IOException;
 }

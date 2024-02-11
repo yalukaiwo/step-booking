@@ -11,10 +11,6 @@ public class UsersController {
         this.usersService = usersService;
     }
 
-    public Optional<User> read(String id) throws IOException {
-        return usersService.read(id);
-    }
-
     public void save(User u) throws IOException {
         usersService.save(u);
     }
@@ -31,15 +27,12 @@ public class UsersController {
         return usersService.getByUserName(login);
     }
 
-    public User getById(String id) throws IOException {
+    // read = getById
+    public Optional<User> getById(String id) throws IOException {
         return usersService.getById(id);
     }
 
-    public void addUser(User u) {
-        usersService.addUser(u);
-    }
-
-    public Optional<User> authenticate(String username, String password) {
+    public Optional<User> authenticate(String username, String password) throws IOException {
         return usersService.authenticate(username, password);
     }
 

@@ -16,7 +16,7 @@ public class User implements HasId, Serializable {
     private List<Booking> bookings;
     private Passenger passenger;
 
-    public User(String id, String username, String password, Booking booking, Passenger passenger) {
+    public User(String id, String username, String password, Passenger passenger) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -77,7 +77,7 @@ public class User implements HasId, Serializable {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
         User user = (User) object;
-        return Objects.equals(id, user.id) && Objects.equals(passenger, user.passenger);
+        return id.equals(user.id) && passenger.equals(user.passenger);
     }
 
     @Override

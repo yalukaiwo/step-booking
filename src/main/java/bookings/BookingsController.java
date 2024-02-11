@@ -68,7 +68,9 @@ public class BookingsController {
         return service.getAll();
     }
 
-    public void clear() throws IOException {
-        service.clear();
+    public void save(List<Booking> bs) throws IOException {
+        for (Booking b : bs) {
+            service.save(b);
+        }
     }
 }

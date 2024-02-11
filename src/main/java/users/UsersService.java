@@ -1,14 +1,12 @@
 package users;
 
-import logger.LoggerService;
-
 import java.io.IOException;
 import java.util.*;
 
-public class UserService {
-    private UserDAO userDao;
+public class UsersService {
+    private UsersDAO userDao;
 
-    public UserService(UserDAO userDAO) {
+    public UsersService(UsersDAO userDAO) {
         this.userDao = userDAO;
     }
 
@@ -47,17 +45,14 @@ public class UserService {
     public void addUser(User u) {
         Map<String, User> us = new HashMap<>();
         us.put(u.getUsername(), u);
-        LoggerService.info("User added: " + u);
     }
 
     public Optional<User> authenticate(String username, String password) {
         Map<String, User> users = new HashMap<>();
         User user = users.get(username);
         if (user != null && user.getPassword().equals(password)) {
-            LoggerService.info("User authenticated: " + user);
             return Optional.of(user);
         } else {
-            LoggerService.info("User authentication failed for username: " + username);
             return Optional.empty();
         }
     }

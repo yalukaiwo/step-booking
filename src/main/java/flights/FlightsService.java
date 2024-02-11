@@ -37,6 +37,18 @@ public class FlightsService {
         return db.readAll();
     }
 
+    public Optional<Flight> read(String id) throws IOException {
+        return db.read(id);
+    }
+
+    public void save(Flight b) throws IOException {
+        db.save(b);
+    }
+
+    public void saveAll(List<Flight> xs) throws IOException {
+        db.saveAll(xs);
+    }
+
     public void clear() throws IOException {
         List<Flight> fs = db.readAll();
         for (Flight f : fs) {

@@ -1,32 +1,35 @@
-package users;
+package console;
 
 import bookings.Booking;
+import bookings.BookingsController;
+import flights.City;
 import flights.Flight;
-import flights.FlightsService;
-import bookings.BookingsService;
+import flights.FlightsController;
+import passenger.Passenger;
+import users.User;
+import users.UsersController;
+import utils.exceptions.FlightNotFoundException;
+import utils.exceptions.InvalidPasswordException;
+import utils.exceptions.UserRegisterException;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
-public class UserController {
-    private final UserService userService;
-    private final BookingsService bookingService;
-    private final FlightsService flightService;
+public class ConsoleApp {
+    private final UsersController usersController;
+    private final BookingsController bookingsController;
+    private final FlightsController flightsController;
     private Optional<User> currentUser;
-    private final DisplayMenu displayMenu;
-
     private final OperationApp[] operations;
+    private final MenuHelper menuDisplayHelper;
+    private static final Scanner scanner = new Scanner(System.in);
 
-    public UserController(UserService userService, BookingsService bookingService, FlightsService flightService) {
-        this.userService = userService;
-        this.bookingService = bookingService;
-        this.flightService = flightService;
+    public ConsoleApp(UsersController usersController, BookingsController bookingsController, FlightsController flightsController) {
+        this.usersController = usersController;
+        this.bookingsController = bookingsController;
+        this.flightsController = flightsController;
         this.currentUser = Optional.empty();
-        this.displayMenu = new DisplayMenu();
+        this.menuDisplayHelper = new MenuHelper();
 
         // Initialize operations
         this.operations = new OperationApp[]{
@@ -39,51 +42,8 @@ public class UserController {
         };
     }
 
-    public Optional<User> read(String id) throws IOException {
-        return userService.read(id);
-    }
-
-    public void save(User u) throws IOException {
-        userService.save(u);
-    }
-
-    public void delete(String id) throws IOException {
-        userService.delete(id);
-    }
-
-    public List<User> readAll() throws IOException {
-        return userService.readAll();
-    }
-
-    public User getByUserName(String login) throws IOException {
-        return userService.getByUserName(login);
-    }
-
-    public User getById(String id) throws IOException {
-        return userService.getById(id);
-    }
-
-    public void addUser(User u) {
-        userService.addUser(u);
-    }
-
-    public Optional<User> authenticate(String username, String password) {
-        return userService.authenticate(username, password);
-    }
-
-    public boolean userExists(String username) {
-        try {
-            return readAll().stream().anyMatch(user -> user.getUsername().equals(username));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public void startSession() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Welcome to the FLIGHT RESERVATION SYSTEM!");
-        displayMenu.visitor();
+    public void start() throws IOException, FlightNotFoundException {
+        menuDisplayHelper.visitor();
 
         boolean sessionActive = true;
 
@@ -108,29 +68,42 @@ public class UserController {
         }
     }
 
-    public void login() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Welcome! Please log in.");
-        System.out.print("Username: ");
-        String username = scanner.nextLine();
-        System.out.print("Password: ");
+    public void login() throws IOException, FlightNotFoundException {
+        System.out.println("Welcome to the Flight Reservation System!");
+        System.out.println("-------------------------------------------");
+        System.out.println("Please log in to continue.");
+        System.out.println();
+
+        String username = menuDisplayHelper.promptValidName("Enter your username");
+
+        System.out.print("Enter your password: ");
         String password = scanner.nextLine();
 
-        Optional<User> authenticatedUser = userService.authenticate(username, password);
+        try {
+            PasswordValidator.validatePassword(password);
+        } catch (InvalidPasswordException e) {
+            System.out.println("Error: Password does not meet the requirements.");
+            return;
+        }
+
+        System.out.println("Authenticating...");
+        System.out.println();
+
+        Optional<User> authenticatedUser = usersController.authenticate(username, password);
         if (authenticatedUser.isPresent()) {
             System.out.println("Login successful!");
+            System.out.println();
             currentUser = authenticatedUser;
             showMainMenu();
         } else {
-            System.out.println("Invalid username or password. Please try again.");
+            System.out.println("Error: Invalid username or password. Please try again.");
+            System.out.println();
         }
     }
 
-    private void signUp() {
-        Scanner scanner = new Scanner(System.in);
+    private void signUp() throws IOException {
         System.out.println("Sign Up");
-        System.out.print("Enter username: ");
-        String username = scanner.nextLine();
+        String username = menuDisplayHelper.promptValidName("Enter your username");
 
         // Generate a random password
         String generatedPassword = generateRandomPassword();
@@ -155,21 +128,20 @@ public class UserController {
         }
 
         try {
-            if (!userService.userExists(username)) {
+            if (!usersController.userExists(username)) {
                 User newUser = new User(username);
                 newUser.setPassword(password);
-                userService.save(newUser);
+                usersController.save(newUser);
                 System.out.println("User registered successfully!");
             } else {
                 System.out.println("Username already exists. Please choose a different one.");
             }
-        } catch (IOException e) {
+        } catch (UserRegisterException e) {
             System.out.println("Error occurred while signing up: " + e.getMessage());
         }
     }
 
     private String generateRandomPassword() {
-        // Generate a random password with a combination of uppercase letters, lowercase letters, numbers, and symbols
         StringBuilder password = new StringBuilder();
         Random random = new Random();
         String upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -202,21 +174,22 @@ public class UserController {
         System.out.println("Exiting FLIGHT RESERVATION SYSTEM. Goodbye!");
     }
 
-    private void showMainMenu() {
-        Scanner scanner = new Scanner(System.in);
+    private void showMainMenu() throws IOException, FlightNotFoundException {
+        List<Flight> xs = flightsController.generateRandom(20);
+        flightsController.saveAll(xs);
         boolean sessionActive = true;
 
         while (sessionActive) {
             // Check if user is not authenticated
-            if (!currentUser.isPresent()) {
+            if (currentUser.isEmpty()) {
                 login(); // If not authenticated, prompt for login
-                if (!currentUser.isPresent()) {
+                if (currentUser.isEmpty()) {
                     // If login failed, continue to the next iteration
                     continue;
                 }
             }
 
-            displayMenu.user();
+            menuDisplayHelper.user();
 
             System.out.println("Main Menu:");
             for (int i = 0; i < operations.length; i++) {
@@ -234,52 +207,44 @@ public class UserController {
         }
     }
 
-    private void viewTimetable() {
-        try {
-            FlightsRandomaizer randomizer = new FlightsRandomaizer(10, 1, 12, 50, 300);
-            List<Flight> flights = flightController.getAll();
-            System.out.println("Flight Timetable:");
-            for (Flight flight : flights) {
-                System.out.println(flight);
-            }
-            showMainMenu();
-        } catch (ParseException e) {
-            System.err.println("Error occurred while generating flights: " + e.getMessage());
+    private void viewTimetable() throws IOException, FlightNotFoundException {
+        List<Flight> flights = flightsController.getAll();
+        System.out.println("Flight Timetable:");
+        for (Flight flight : flights) {
+            System.out.println(flight);
         }
+        showMainMenu();
     }
 
-    private void viewFlightDetails() {
-        // METHOD ADAPTED TO NEW FLIGHT STRUCTURE
+    private void viewFlightDetails() throws FlightNotFoundException, IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter the flight number: ");
         String flightNumber = scanner.nextLine();
-
-        Optional<Flight> optionalFlight = flightService.getFlightDetails(flightNumber);
+        Optional<Flight> optionalFlight = Optional.ofNullable(flightsController.getById(flightNumber));
         if (optionalFlight.isPresent()) {
             System.out.println("Flight Details: ");
             Flight flight = optionalFlight.get();
-            System.out.println("№: " + flight.getId());
             System.out.println("Flight ID:" + flight.getId());
+            System.out.println("Airline: " + flight.getAirline());
             System.out.println("From: " + flight.getDestination());
             System.out.println("To: " + flight.getOrigin());
             System.out.println("Date: " + flight.getDepartureTime());
-            System.out.println("Airline: " + flight.getAirline());
         } else {
             System.out.println("Flight with number " + flightNumber + " not found.");
         }
     }
 
-    private void searchAndBookFlights() {
+    private void searchAndBookFlights() throws IOException {
         Scanner scanner = new Scanner(System.in);
 
         // Step 1: Search Flights
         System.out.print("Enter origin city: ");
-        String origin = scanner.nextLine();
+        City origin = City.valueOf(scanner.nextLine());
         System.out.print("Enter destination city: ");
-        String destination = scanner.nextLine();
+        City destination = City.valueOf(scanner.nextLine());
         // You can add more search criteria such as date, number of passengers, etc.
 
-        List<Flight> searchResults = flightService.searchFlights(origin, destination);
+        List<Flight> searchResults = flightsController.searchFlight(origin, destination);
 
         // Step 2: Display Search Results
         if (!searchResults.isEmpty()) {
@@ -297,18 +262,31 @@ public class UserController {
                 // Step 4: Book a Flight
                 System.out.println("You selected the following flight:");
                 System.out.println(selectedFlight);
-                System.out.print("Do you want to book this flight? (yes/no): ");
-                String bookChoice = scanner.next().toLowerCase();
-                if (bookChoice.equals("yes")) {
+                System.out.print("Enter the number of passengers: ");
+                int numPassengers = scanner.nextInt();
+                if (numPassengers > 0) {
                     // Book the flight
                     if (currentUser.isPresent()) {
-                        bookingService.bookFlight(selectedFlight, currentUser.get());
-                        System.out.println("Flight booked successfully!");
+                        User user = currentUser.get();
+                        List<Passenger> passengers = new ArrayList<>();
+                        for (int i = 0; i < numPassengers; i++) {
+                            // Assuming you have methods to retrieve the name and surname of the user
+                            String name = passengers.get(i).getName();
+                            String surname = passengers.get(i).getSurname();
+                            passengers.add(new Passenger(name, surname));
+                        }
+                        Optional<Booking> bookingResult = bookingsController.create(selectedFlight, passengers);
+                        if (bookingResult.isPresent()) {
+                            user.addBooking(bookingResult.get());
+                            System.out.println("Flight booked successfully!");
+                        } else {
+                            System.out.println("Failed to book the flight. Please try again later.");
+                        }
                     } else {
                         System.out.println("Please log in to book the flight.");
                     }
                 } else {
-                    System.out.println("Booking cancelled.");
+                    System.out.println("Invalid number of passengers.");
                 }
             } else {
                 System.out.println("Invalid selection.");
@@ -318,10 +296,10 @@ public class UserController {
         }
     }
 
-    private void showUserBookings() {
+    private void showUserBookings() throws IOException {
         if (currentUser.isPresent()) {
             User user = currentUser.get();
-            List<Booking> userBookings = bookingService.getUserBookings(user);
+            List<Booking> userBookings = user.getBookings();
             if (!userBookings.isEmpty()) {
                 System.out.println("Your ID: " + user.getId());
                 System.out.println("Name: " + user.getUsername());
@@ -329,13 +307,14 @@ public class UserController {
 
                 // Print booking details
                 for (Booking booking : userBookings) {
-                    Ticket ticket = booking.getTicket();
-                    System.out.println("Flight ID: " + ticket.getFlight().getId());
-                    System.out.println("Cost: " + ticket.getCost());
-                    System.out.println("Ticket Type: " + ticket.getType());
-                    System.out.println("Airline: " + ticket.getFlight().getAirline());
-                    // You can add more details as needed
-                    System.out.println();
+                    System.out.println("Flight ID: " + booking.getFlight().getId());
+                    System.out.println("Airline: " + booking.getFlight().getAirline());
+                    System.out.println("From: " + booking.getFlight().getOrigin());
+                    System.out.println("To: " + booking.getFlight().getDestination());
+                    System.out.println("Date: " + booking.getFlight().getDepartureTime());
+                    System.out.println("Passengers: " + booking.getPassengers());
+                    System.out.println("Cost: " + booking.getFlight().getTicketCost());
+                    System.out.println("Class: " + booking.getFlight().getClass());
                 }
                 System.out.println("Total bookings: " + userBookings.size());
             } else {
@@ -346,10 +325,10 @@ public class UserController {
         }
     }
 
-    private void cancelBooking() {
+    private void cancelBooking() throws IOException {
         Scanner scanner = new Scanner(System.in);
         if (currentUser.isPresent()) {
-            List<Booking> userBookings = bookingService.getUserBookings(currentUser.get());
+            List<Booking> userBookings = bookingsController.getAll();
             if (!userBookings.isEmpty()) {
                 System.out.println("Your bookings:");
                 for (int i = 0; i < userBookings.size(); i++) {
@@ -361,7 +340,7 @@ public class UserController {
                 if (selectedBookingIndex > 0 && selectedBookingIndex <= userBookings.size()) {
                     Booking selectedBooking = userBookings.get(selectedBookingIndex - 1);
                     // Cancel the booking
-                    bookingService.cancelBooking(selectedBooking);
+                    bookingsController.delete(selectedBooking);
                     System.out.println("Booking cancelled successfully!");
                 } else {
                     System.out.println("Invalid selection.");

@@ -1,10 +1,8 @@
 package bookings;
 
 import flights.Flight;
-import flights.FlightsController;
 import passenger.Passenger;
 import utils.exceptions.BookingNotFoundException;
-import utils.exceptions.FlightNotFoundException;
 import utils.exceptions.PassengerOverflowException;
 
 import java.io.IOException;
@@ -36,26 +34,23 @@ public class BookingsController {
         }
     }
 
-    public void delete(Booking b, FlightsController fc) throws IOException {
+
+    public void delete(Booking b) throws IOException {
         try {
-            fc.getById(b.getFlightId()).decrementPassengers(b.getPassengers().size());
+            b.getFlight().decrementPassengers(b.getPassengers().size());
             service.delete(b);
         } catch (PassengerOverflowException e) {
             throw new RuntimeException(e);
-        } catch (FlightNotFoundException e) {
-            service.delete(b);
         }
     }
 
-    public void delete(String id, FlightsController fc) throws IOException {
+    public void delete(String id) throws IOException {
         try {
             Booking b = service.getById(id);
-            fc.getById(b.getFlightId()).decrementPassengers(b.getPassengers().size());
+            b.getFlight().decrementPassengers(b.getPassengers().size());
             service.delete(id);
         } catch (PassengerOverflowException e) {
             throw new RuntimeException(e);
-        } catch (FlightNotFoundException e) {
-            service.delete(id);
         } catch (BookingNotFoundException e) {
             // do nothing
         }

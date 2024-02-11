@@ -2,7 +2,6 @@ package console;
 
 import bookings.BookingsController;
 import flights.FlightsController;
-import users.UserController;
 
 public class Console {
     private final UserController userController;

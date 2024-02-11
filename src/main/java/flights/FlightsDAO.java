@@ -33,6 +33,10 @@ public class FlightsDAO implements DAO<Flight> {
         worker.saveAll(bs);
     }
 
+    public void saveAll(List<Flight> xs) throws IOException {
+        worker.saveAll(xs);
+    }
+
     public void delete(String id) throws IOException {
         List<Flight> bs = worker.readAll().stream().filter(b -> !b.getId().equals(id)).toList();
         worker.saveAll(bs);

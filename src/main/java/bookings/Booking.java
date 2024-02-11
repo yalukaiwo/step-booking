@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Booking implements HasId, Serializable {
     private final String id;
-    private final String flightId;
+    private final Flight flight;
     private final List<Passenger> passengers;
 
     public static String generateId(Flight flight, List<Passenger> passengers) {
@@ -19,7 +19,7 @@ public class Booking implements HasId, Serializable {
     public Booking(Flight flight, List<Passenger> passengers) {
         this.id = generateId(flight, passengers);
         this.passengers = passengers;
-        this.flightId = flight.getId();
+        this.flight = flight;
     }
 
     @Override
@@ -41,8 +41,8 @@ public class Booking implements HasId, Serializable {
         return "Booking{id: " + this.id + "}";
     }
 
-    public String getFlightId() {
-        return flightId;
+    public Flight getFlight() {
+        return flight;
     }
 
     public List<Passenger> getPassengers() {

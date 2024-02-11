@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class FlightsController {
     private static final int minSeats = 50;
@@ -72,5 +73,19 @@ public class FlightsController {
 
     public List<Flight> getAll() throws IOException {
         return service.getAll();
+    }
+
+    public void save(Flight b) throws IOException {
+        service.save(b);
+    }
+
+    public void saveAll(List<Flight> xs) throws IOException {
+        service.saveAll(xs);
+    }
+
+    public List<Flight> searchFlight(City origin, City destination) throws IOException {
+        return service.getAll().stream()
+                .filter(f -> f.getOrigin().equals(origin) && f.getDestination().equals(destination))
+                .collect(Collectors.toList());
     }
 }

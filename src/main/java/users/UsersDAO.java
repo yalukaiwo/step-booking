@@ -10,24 +10,20 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class UserDAO implements DAO<User> {
+public class UsersDAO implements DAO<User> {
     private final DataWorker<User> worker;
 
     public DataWorker<User> getWorker() {
         return worker;
     }
 
-    public UserDAO(File f) {
+    public UsersDAO(File f) {
         this.worker = new FileWorker<>(f);
     }
 
     // FOR TESTING PURPOSES
-    public UserDAO(HashMap<String, User> us) {
+    public UsersDAO(HashMap<String, User> us) {
         this.worker = new MapWorker<>(us);
-    }
-
-    public UserDAO(DataWorker<User> worker) {
-        this.worker = worker;
     }
 
     public Optional<User> read(String id) throws IOException {

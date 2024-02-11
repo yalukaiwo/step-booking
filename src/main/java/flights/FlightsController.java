@@ -21,33 +21,27 @@ public class FlightsController {
         this.service = service;
     }
 
-    public Optional<Flight> generateRandom() {
-        try {
-            City origin = City.getRandom();
-            City destination = City.getRandom(origin);
-            long departureTime = Instant.ofEpochSecond(ThreadLocalRandom.current().nextLong(Instant.now().getEpochSecond(), Instant.MAX.getEpochSecond())).toEpochMilli();
-            int maxPassengers = ThreadLocalRandom.current().nextInt(minSeats, maxSeats);
-            int passengers = ThreadLocalRandom.current().nextInt(0, maxPassengers);
-            double initialCost = ThreadLocalRandom.current().nextDouble();
-            Airline airline = Airline.getRandom();
+    public Flight generateRandom() throws IOException {
+        City origin = City.getRandom();
+        City destination = City.getRandom(origin);
+        long departureTime = Instant.ofEpochSecond(ThreadLocalRandom.current().nextLong(Instant.now().getEpochSecond(), Instant.MAX.getEpochSecond())).toEpochMilli();
+        int maxPassengers = ThreadLocalRandom.current().nextInt(minSeats, maxSeats);
+        int passengers = ThreadLocalRandom.current().nextInt(0, maxPassengers);
+        double initialCost = ThreadLocalRandom.current().nextDouble();
+        Airline airline = Airline.getRandom();
 
-            Flight f = create(origin, destination, airline, initialCost, departureTime, maxPassengers);
-            try {
-                f.incrementPassengers(passengers);
-                return Optional.of(f);
-            } catch (PassengerOverflowException e) {
-                return Optional.empty();
-            }
-        } catch (IOException e) {
-            // Handle IOException or rethrow it depending on the context
-            return Optional.empty();
+        Flight f = create(origin, destination, airline, initialCost, departureTime, maxPassengers);
+        try {
+            f.incrementPassengers(passengers);
+        } catch (PassengerOverflowException e) {
+            throw new RuntimeException(e);
         }
+        return f;
     }
 
-    public List<Flight> generateRandom(int amount) {
+    public List<Flight> generateRandom(int amount) throws IOException {
         return IntStream.range(0, amount)
-                .mapToObj(i -> generateRandom().orElse(null))
-                .filter(flight -> flight != null)
+                .mapToObj(i -> generateRandom())
                 .collect(Collectors.toList());
     }
 

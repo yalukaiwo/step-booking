@@ -46,5 +46,4 @@ public class BookingsService {
             db.delete(f.getId());
         }
     }
-
 }

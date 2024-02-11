@@ -23,26 +23,18 @@ public class Booking implements HasId, Serializable {
         this.passengers = passengers;
     }
 
-    public Flight getFlight() {
-        return flight;
-    }
-
-    public List<Passenger> getPassengers() {
-        return passengers;
-    }
-
-
     @Override
     public String getId() {
         return id;
     }
 
     @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        Booking booking = (Booking) object;
-        return Objects.equals(id, booking.id) && Objects.equals(passengers, booking.passengers) && Objects.equals(flight, booking.flight);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        if (this.getClass() != o.getClass()) return false;
+        Booking b = (Booking) o;
+        return this.getId().equals(b.getId());
     }
 
     @Override
@@ -53,5 +45,13 @@ public class Booking implements HasId, Serializable {
     @Override
     public String toString() {
         return "Booking{id: " + this.id + "}";
+    }
+
+    public Flight getFlight() {
+        return flight;
+    }
+
+    public List<Passenger> getPassengers() {
+        return passengers;
     }
 }

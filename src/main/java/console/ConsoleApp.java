@@ -5,12 +5,14 @@ import bookings.BookingsController;
 import flights.City;
 import flights.Flight;
 import flights.FlightsController;
+import flights.FlightsRandomaizer;
 import passenger.Passenger;
 import users.User;
 import users.UsersController;
 import utils.exceptions.FlightNotFoundException;
 import utils.exceptions.InvalidPasswordException;
 import utils.exceptions.UserRegisterException;
+import console.colored_console.Ansi;
 
 import java.io.IOException;
 import java.util.*;
@@ -31,189 +33,186 @@ public class ConsoleApp {
         this.currentUser = Optional.empty();
         this.menuDisplayHelper = new MenuHelper();
 
-        // Initialize operations
         this.operations = new OperationApp[]{
                 new OperationApp("View Timetable", this::viewTimetable),
                 new OperationApp("View Flight Details", this::viewFlightDetails),
                 new OperationApp("Search and Book Flights", this::searchAndBookFlights),
                 new OperationApp("Show User Bookings", this::showUserBookings),
                 new OperationApp("Cancel Booking", this::cancelBooking),
-                new OperationApp("Logout", this::logout)
+                new OperationApp("Logout", this::exit)
         };
     }
 
-    public void start() throws IOException, FlightNotFoundException {
+    public void start() throws IOException {
         menuDisplayHelper.visitor();
 
         boolean sessionActive = true;
 
         while (sessionActive) {
-            System.out.print("Enter your choice: ");
-            int choice = scanner.nextInt();
+            try {
+                System.out.print(MenuHelper.colorize(">>> Enter your choice: ", MenuHelper.magentaAttribute));
+                int choice = scanner.nextInt();
 
-            switch (choice) {
-                case 1:
-                    login();
-                    break;
-                case 2:
-                    signUp();
-                    break;
-                case 3:
-                    exit();
-                    sessionActive = false;
-                    break;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
+                switch (choice) {
+                    case 1:
+                        login();
+                        break;
+                    case 2:
+                        signUp();
+                        break;
+                    case 3:
+                        exit();
+                        sessionActive = false;
+                        break;
+                    default:
+                        System.out.println(MenuHelper.colorize("Invalid choice. Please try again.", MenuHelper.redAttribute));
+                }
+            } catch (InputMismatchException e) {
+                System.out.println(MenuHelper.colorize("Invalid input. Please enter a valid integer.", MenuHelper.redAttribute));
+                scanner.nextLine();
             }
         }
     }
 
-    public void login() throws IOException, FlightNotFoundException {
-        System.out.println("Welcome to the Flight Reservation System!");
+    public void login() throws IOException {
+        System.out.println(MenuHelper.colorize("Welcome to the Flight Reservation System!", MenuHelper.yellowAttribute));
         System.out.println("-------------------------------------------");
-        System.out.println("Please log in to continue.");
+        System.out.println(MenuHelper.colorize("Please log in to continue.", MenuHelper.yellowAttribute) + Ansi.RESET);
         System.out.println();
-
-        String username = menuDisplayHelper.promptValidName("Enter your username");
-
-        System.out.print("Enter your password: ");
-        String password = scanner.nextLine();
-
-        try {
-            PasswordValidator.validatePassword(password);
-        } catch (InvalidPasswordException e) {
-            System.out.println("Error: Password does not meet the requirements.");
-            return;
-        }
-
-        System.out.println("Authenticating...");
+        String username = menuDisplayHelper.promptValidName(MenuHelper.colorize("Enter your username", MenuHelper.blueAttribute));
+        System.out.print(MenuHelper.colorize("Enter your password: ", MenuHelper.blueAttribute));
+        String password = scanner.next().trim();
+        System.out.println(MenuHelper.colorize("Authenticating...", MenuHelper.cyanAttribute) + Ansi.RESET);
         System.out.println();
-
-        Optional<User> authenticatedUser = usersController.authenticate(username, password);
-        if (authenticatedUser.isPresent()) {
-            System.out.println("Login successful!");
-            System.out.println();
-            currentUser = authenticatedUser;
-            showMainMenu();
+        if (usersController.userExists(username, password)) {
+            usersController.authenticate(username, password);
+            System.out.println(MenuHelper.colorize("You have successfully logged in", MenuHelper.greenAttribute) + Ansi.RESET);
+            startBooking();
         } else {
-            System.out.println("Error: Invalid username or password. Please try again.");
-            System.out.println();
+            System.out.println(MenuHelper.colorize("This user doesn't exist, please sign up", MenuHelper.redAttribute) + Ansi.RESET);
+            signUp();
         }
     }
 
     private void signUp() throws IOException {
-        System.out.println("Sign Up");
-        String username = menuDisplayHelper.promptValidName("Enter your username");
-
-        // Generate a random password
-        String generatedPassword = generateRandomPassword();
-
-        // Prompt the user to accept or enter their own password
-        System.out.println("Generated password: " + generatedPassword);
-        System.out.print("Do you want to use this password? (yes/no): ");
-        String choice = scanner.nextLine().trim().toLowerCase();
-
-        String password;
-        if (choice.equals("yes")) {
-            password = generatedPassword;
-        } else {
-            System.out.print("Enter your password: ");
-            password = scanner.nextLine();
-        }
-
-        // Validate the password
-        if (!PasswordValidator.checkPassword(password)) {
-            System.out.println("Password does not meet the requirements.");
-            return;
-        }
+        System.out.println(MenuHelper.colorize("Welcome to the Flight Reservation System!", MenuHelper.yellowAttribute));
+        System.out.println("-------------------------------------------");
+        System.out.println(MenuHelper.colorize("Please sign up to continue.", MenuHelper.yellowAttribute) + Ansi.RESET);
+        System.out.println();
+        String name = menuDisplayHelper.promptValidName(MenuHelper.colorize("Enter your name", MenuHelper.blueAttribute));
+        String surname = menuDisplayHelper.promptValidName(MenuHelper.colorize("Enter your surname", MenuHelper.blueAttribute));
+        String username = menuDisplayHelper.promptValidName(MenuHelper.colorize("Enter your username", MenuHelper.blueAttribute));
 
         try {
-            if (!usersController.userExists(username)) {
-                User newUser = new User(username);
-                newUser.setPassword(password);
-                usersController.save(newUser);
-                System.out.println("User registered successfully!");
-            } else {
-                System.out.println("Username already exists. Please choose a different one.");
-            }
-        } catch (UserRegisterException e) {
-            System.out.println("Error occurred while signing up: " + e.getMessage());
-        }
-    }
-
-    private String generateRandomPassword() {
-        StringBuilder password = new StringBuilder();
-        Random random = new Random();
-        String upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        String lowerChars = "abcdefghijklmnopqrstuvwxyz";
-        String numbers = "0123456789";
-        String symbols = "!@#$%^&*()_+-=[]{}|;:,.<>?";
-
-        // Add random characters to the password
-        for (int i = 0; i < 8; i++) {
-            switch (random.nextInt(4)) {
-                case 0:
-                    password.append(upperChars.charAt(random.nextInt(upperChars.length())));
+            while (true) {
+                if (usersController.userExists(username)) {
+                    System.out.println(MenuHelper.colorize("Username already exists. Please choose a different one.", MenuHelper.redAttribute) + Ansi.RESET);
+                    username = menuDisplayHelper.promptValidName(MenuHelper.colorize("Enter your username", MenuHelper.blueAttribute));
+                } else {
                     break;
-                case 1:
-                    password.append(lowerChars.charAt(random.nextInt(lowerChars.length())));
-                    break;
-                case 2:
-                    password.append(numbers.charAt(random.nextInt(numbers.length())));
-                    break;
-                case 3:
-                    password.append(symbols.charAt(random.nextInt(symbols.length())));
-                    break;
-            }
-        }
-
-        return password.toString();
-    }
-
-    private void exit() {
-        System.out.println("Exiting FLIGHT RESERVATION SYSTEM. Goodbye!");
-    }
-
-    private void showMainMenu() throws IOException, FlightNotFoundException {
-        List<Flight> xs = flightsController.generateRandom(20);
-        flightsController.saveAll(xs);
-        boolean sessionActive = true;
-
-        while (sessionActive) {
-            // Check if user is not authenticated
-            if (currentUser.isEmpty()) {
-                login(); // If not authenticated, prompt for login
-                if (currentUser.isEmpty()) {
-                    // If login failed, continue to the next iteration
-                    continue;
                 }
             }
 
-            menuDisplayHelper.user();
+            String password;
 
-            System.out.println("Main Menu:");
-            for (int i = 0; i < operations.length; i++) {
-                System.out.println((i + 1) + ". " + operations[i].operationName);
+            while (true) {
+                String generatedPassword = menuDisplayHelper.generateRandomPassword();
+                // Prompt the user to accept or enter their own password
+                System.out.println(MenuHelper.colorize("Generated password: " + generatedPassword, MenuHelper.greenAttribute) + Ansi.RESET);
+                System.out.print(MenuHelper.colorize("Do you want to use this password? (yes/no): ", MenuHelper.cyanAttribute));
+                String choice = scanner.next().trim().toLowerCase();
+                if (choice.equals("yes")) {
+                    password = generatedPassword;
+                    break;
+                } else if (choice.equals("no")) {
+                    System.out.println(MenuHelper.colorize("Password must be at least 8 characters long and must consist of capital, " +
+                            "small letters, numbers, and symbols.", MenuHelper.greenAttribute) + Ansi.RESET);
+                    System.out.print(MenuHelper.colorize("Enter your password: ", MenuHelper.cyanAttribute));
+                    password = scanner.next();
+                    try {
+                        if (PasswordValidator.checkPassword(password)) {
+                            break;
+                        } else {
+                            PasswordValidator.validatePassword(password);
+                        }
+                    } catch (InvalidPasswordException e) {
+                        System.out.println(MenuHelper.colorize("Error: " + e.getMessage(), MenuHelper.redAttribute) + Ansi.RESET);
+                    }
+                } else {
+                    System.out.println(MenuHelper.colorize("Invalid input. Please enter either 'yes' or 'no'.", MenuHelper.redAttribute) + Ansi.RESET);
+                }
             }
 
-            System.out.print("Enter your choice: ");
-            int choice = scanner.nextInt();
+            Passenger passenger = new Passenger(name, surname);
+            User newUser = new User(User.generateId(), username, password, passenger);
+            usersController.save(newUser);
+            System.out.println(MenuHelper.colorize("User registered successfully!", MenuHelper.greenAttribute) + Ansi.RESET);
+            startBooking();
+        } catch (UserRegisterException e) {
+            System.out.println(MenuHelper.colorize("Error occurred while signing up: " + e.getMessage(), MenuHelper.redAttribute) + Ansi.RESET);
+        }
+    }
 
-            if (choice > 0 && choice <= operations.length) {
-                operations[choice - 1].operation.operation();
-            } else {
-                System.out.println("Invalid choice. Please try again.");
+    private void exit() {
+        System.out.println(MenuHelper.colorize("Exiting FLIGHT RESERVATION SYSTEM. Goodbye!", MenuHelper.magentaAttribute) + Ansi.RESET);
+    }
+
+    public void startBooking() throws IOException {
+        menuDisplayHelper.user();
+        // List<Flight> xs = flightsController.generateRandom(20);
+        // flightsController.saveAll(xs);
+        boolean sessionActive = true;
+
+        while (sessionActive) {
+            try {
+                System.out.print(MenuHelper.colorize(">>> Enter your choice: ", MenuHelper.magentaAttribute));
+                int choice = scanner.nextInt();
+
+                switch (choice) {
+                    case 1:
+                        viewTimetable();
+                        break;
+                    case 2:
+                        viewFlightDetails();
+                        break;
+                    case 3:
+                        searchAndBookFlights();
+                        break;
+                    case 4:
+                        showUserBookings();
+                        break;
+                    case 5:
+                        cancelBooking();
+                        break;
+                    case 6:
+                        exit();
+                        sessionActive = false;
+                        break;
+                    default:
+                        System.out.println(MenuHelper.colorize("Invalid choice. Please try again.", MenuHelper.redAttribute));
+                }
+            } catch (InputMismatchException e) {
+                System.out.println(MenuHelper.colorize("Invalid input. Please enter a valid integer.", MenuHelper.redAttribute));
+                scanner.nextLine();
+            } catch (FlightNotFoundException e) {
+                throw new RuntimeException(e.getMessage());
             }
         }
     }
 
-    private void viewTimetable() throws IOException, FlightNotFoundException {
-        List<Flight> flights = flightsController.getAll();
-        System.out.println("Flight Timetable:");
+    private void viewTimetable() throws IOException {
+        FlightsRandomaizer randomizer = new FlightsRandomaizer(10, 50, 500);
+        List<Flight> flights = randomizer.get();
+
         for (Flight flight : flights) {
             System.out.println(flight);
         }
-        showMainMenu();
+
+        List<Flight> connectingFlights = randomizer.searchFlightsBetweenCitiesWithConnection(flights);
+        System.out.println("Connecting Flights:");
+        for (Flight flight : connectingFlights) {
+            System.out.println(flight);
+        }
     }
 
     private void viewFlightDetails() throws FlightNotFoundException, IOException {
@@ -296,7 +295,7 @@ public class ConsoleApp {
         }
     }
 
-    private void showUserBookings() throws IOException {
+    private void showUserBookings() {
         if (currentUser.isPresent()) {
             User user = currentUser.get();
             List<Booking> userBookings = user.getBookings();
@@ -351,10 +350,5 @@ public class ConsoleApp {
         } else {
             System.out.println("User not authenticated.");
         }
-    }
-
-    private void logout() {
-        currentUser = Optional.empty();
-        System.out.println("Logout successful.");
     }
 }

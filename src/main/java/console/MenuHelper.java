@@ -1,13 +1,79 @@
 package console;
 
-import utils.exceptions.InvalidNameException;
+import console.colored_console.*;
+import utils.exceptions.*;
 
-import java.util.InputMismatchException;
+import java.util.Random;
 import java.util.Scanner;
 
 public class MenuHelper {
 
-    public static final Scanner scanner = new Scanner(System.in);
+    private static final Scanner scanner = new Scanner(System.in);
+    public static final Attribute blueAttribute = new Attribute().bold().withColor(Ansi.ColorFont.BLUE);
+    public static final Attribute cyanAttribute = new Attribute().withColor(Ansi.ColorFont.CYAN);
+    public static final Attribute yellowAttribute = new Attribute().withColor(Ansi.ColorFont.YELLOW);
+    public static final Attribute magentaAttribute = new Attribute().withColor(Ansi.ColorFont.MAGENTA);
+    public static final Attribute redAttribute = new Attribute().withColor(Ansi.ColorFont.RED);
+    public static final Attribute greenAttribute = new Attribute().withColor(Ansi.ColorFont.GREEN);
+    private final String FRAME_HORIZONTAL = "══";
+    private final String FRAME_VERTICAL = "║";
+    private final String FRAME_TOP_LEFT = "╔";
+    private final String FRAME_TOP_RIGHT = "╗";
+    private final String FRAME_BOTTOM_LEFT = "╚";
+    private final String FRAME_BOTTOM_RIGHT = "╝";
+    private final String FRAME_VERTICAL_RIGHT = "╠";
+    private final String FRAME_VERTICAL_LEFT = "╣";
+    private static final String CAPITAL_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String SMALL_LETTERS = "abcdefghijklmnopqrstuvwxyz";
+    private static final String NUMBERS = "0123456789";
+    private static final String SYMBOLS = ")(@$&*![]";
+
+    public void user() {
+        head();
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("    1. View Timetable ", cyanAttribute) + centerText("", 35) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("    2. View Flight Details", cyanAttribute) + centerText("", 30) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("    3. Search and Bookings", cyanAttribute) + centerText("", 30) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("    4. My Bookings", cyanAttribute) + centerText("", 38) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("    5. Cancel a Booking ", cyanAttribute) + centerText("", 33) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("    6. End Session  ", cyanAttribute) + centerText("", 36) + colorize(FRAME_VERTICAL, yellowAttribute));
+        end();
+    }
+
+    public void visitor() {
+        head();
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  1. Log In ", cyanAttribute) + centerText("", 45) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  2. Sign Up", cyanAttribute) + centerText("", 45) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  3. Exit ", cyanAttribute) + centerText("", 47) + colorize(FRAME_VERTICAL, yellowAttribute));
+        end();
+    }
+
+    public void head() {
+        System.out.println(colorize(FRAME_TOP_LEFT, yellowAttribute) + repeatString(colorize(FRAME_HORIZONTAL, yellowAttribute), 28) + colorize(FRAME_TOP_RIGHT, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  FLIGHT RESERVATION SYSTEM                             ", blueAttribute) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  Please choose one of the options below to continue.   ", blueAttribute) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL_RIGHT, yellowAttribute) + repeatString(colorize(FRAME_HORIZONTAL, yellowAttribute), 28) + colorize(FRAME_VERTICAL_LEFT, yellowAttribute));
+    }
+
+    public void end() {
+        System.out.println(colorize(FRAME_BOTTOM_LEFT, yellowAttribute) + repeatString(colorize(FRAME_HORIZONTAL, yellowAttribute), 28) + colorize(FRAME_BOTTOM_RIGHT, yellowAttribute));
+    }
+
+    public static String colorize(String text, Attribute attribute) {
+        return attribute.escapeSequence() + text + Ansi.RESET;
+    }
+
+    public String centerText(String text, int width) {
+        int padding = (width - text.length()) / 2;
+        return repeatString(" ", padding) + text + repeatString(" ", padding);
+    }
+
+    public String repeatString(String str, int count) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            sb.append(str);
+        }
+        return sb.toString();
+    }
 
     public String promptValidName(String message) {
         while (true) {
@@ -16,18 +82,18 @@ public class MenuHelper {
                 validateName(input);
                 return formatName(input);
             } catch (InvalidNameException e) {
-                System.out.println("Error: " + e.getMessage());
+                System.out.println(colorize("Error: " + e.getMessage(), redAttribute));
             }
         }
     }
 
     public void validateName(String name) throws InvalidNameException {
         if (name.matches(".*\\d.*")) {
-            throw new InvalidNameException("Name cannot contain digits.");
+            throw new InvalidNameException(colorize("Name cannot contain digits.", redAttribute));
         }
 
         if (!name.matches("^[a-zA-Z]+(-[a-zA-Z]+)*(\\s[a-zA-Z]+(-[a-zA-Z]+)*)*$")) {
-            throw new InvalidNameException("Name must contain only Latin letters, hyphens, and spaces.");
+            throw new InvalidNameException(colorize("Name must contain only Latin letters, hyphens, and spaces.", redAttribute));
         }
     }
 
@@ -49,69 +115,44 @@ public class MenuHelper {
         return scanner.nextLine();
     }
 
-    public int promptInt(String message, int minValue, int maxValue) {
-        int value;
-        do {
-            value = validateInput(message + " (" + minValue + " - " + maxValue + "): ", minValue, maxValue);
-        } while (value < minValue || value > maxValue);
+    public static String generateRandomPassword() {
+        Random random = new Random();
+        StringBuilder password = new StringBuilder();
 
-        return value;
-    }
+        // Ensure at least one character from each character set
+        password.append(CAPITAL_LETTERS.charAt(random.nextInt(CAPITAL_LETTERS.length())));
+        password.append(SMALL_LETTERS.charAt(random.nextInt(SMALL_LETTERS.length())));
+        password.append(NUMBERS.charAt(random.nextInt(NUMBERS.length())));
+        password.append(SYMBOLS.charAt(random.nextInt(SYMBOLS.length())));
 
-    public int validateInput(String prompt, int minValue, int maxValue) {
-        int value;
-        while (true) {
-            try {
-                System.out.print(prompt);
-                while (!scanner.hasNextInt()) {
-                    System.out.print("Invalid input. Please enter a valid integer: ");
-                    scanner.next(); // consume the invalid input
-                }
-                value = scanner.nextInt();
-                scanner.nextLine(); // consume the newline
-
-                if (value < minValue || value > maxValue) {
-                    System.out.println("Value must be between " + minValue + " and " + maxValue + ".");
-                } else {
-                    break; // valid input, exit the loop
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Error: Invalid input. Please enter a valid integer.");
-                scanner.nextLine(); // consume the invalid input
-            }
+        // Generate remaining characters randomly
+        for (int i = 4; i < 8; i++) {
+            String charSet = getCharacterSet(random.nextInt(3));
+            password.append(charSet.charAt(random.nextInt(charSet.length())));
         }
-        return value;
+
+        // Shuffle the password to randomize the characters' order
+        char[] passwordArray = password.toString().toCharArray();
+        for (int i = 0; i < passwordArray.length; i++) {
+            int randomIndex = random.nextInt(passwordArray.length);
+            char temp = passwordArray[i];
+            passwordArray[i] = passwordArray[randomIndex];
+            passwordArray[randomIndex] = temp;
+        }
+
+        return new String(passwordArray);
     }
 
-    public void handleInputMismatchException() {
-        System.out.println("Error: Invalid input. Please enter a valid integer.");
-        scanner.nextLine();
-    }
-
-    public void user() {
-        System.out.println("╔══════════════════════════════════════════════════════════╗");
-        System.out.println("║                   FLIGHT RESERVATION SYSTEM              ║");
-        System.out.println("║     Please choose one of the options below to continue.  ║");
-        System.out.println("║──────────────────────────────────────────────────────────║");
-        System.out.println("║                 1. View Timetable                        ║");
-        System.out.println("║                 2. View Flight Details                   ║");
-        System.out.println("║                 3. Search and Bookings                   ║");
-        System.out.println("║                 4. My Bookings                           ║");
-        System.out.println("║                 5. Cancel a Booking                      ║");
-        System.out.println("║                 6. End Session                           ║");
-        System.out.println("║──────────────────────────────────────────────────────────║");
-        System.out.print(">>> Your selection: ");
-    }
-
-    public void visitor() {
-        System.out.println("╔══════════════════════════════════════════════════════════╗");
-        System.out.println("║                FLIGHT RESERVATION SYSTEM                 ║");
-        System.out.println("║  Please choose one of the options below to continue.     ║");
-        System.out.println("║──────────────────────────────────────────────────────────║");
-        System.out.println("║                      1. Log In.                          ║");
-        System.out.println("║                      2. Sign Up.                         ║");
-        System.out.println("║                      3. Exit.                            ║");
-        System.out.println("║──────────────────────────────────────────────────────────║");
-        System.out.print(">>> Your selection: ");
+    private static String getCharacterSet(int index) {
+        switch (index) {
+            case 0:
+                return CAPITAL_LETTERS;
+            case 1:
+                return SMALL_LETTERS;
+            case 2:
+                return NUMBERS;
+            default:
+                return SYMBOLS;
+        }
     }
 }

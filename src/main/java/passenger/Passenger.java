@@ -1,7 +1,5 @@
 package passenger;
 
-import users.User;
-
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -38,6 +36,6 @@ public class Passenger implements Serializable {
 
     @Override
     public String toString() {
-        return "Person{name: " + name + ", surname: " + surname + "}";
+        return "Passenger{name: " + name + ", surname: " + surname + "}";
     }
 }

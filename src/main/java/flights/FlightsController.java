@@ -25,13 +25,21 @@ public class FlightsController {
         try {
             City origin = City.getRandom();
             City destination = City.getRandom(origin);
-            long departureTime = Instant.ofEpochSecond(ThreadLocalRandom.current().nextLong(Instant.now().getEpochSecond(), Instant.MAX.getEpochSecond())).toEpochMilli();
+            long maxSecondsFromNow = 86400;
+            long maxSeconds = Instant.now().getEpochSecond() + maxSecondsFromNow;
+            long departureTime = ThreadLocalRandom.current().nextLong(Instant.now().getEpochSecond(), maxSeconds);
+
+            // Generating trip time between 1 and 6 hours (in seconds)
+            long tripTime = ThreadLocalRandom.current().nextLong(3600, 21600); // 1 hour = 3600 seconds, 6 hours = 21600 seconds
+
+            long arrivalTime = departureTime + tripTime;
+
             int maxPassengers = ThreadLocalRandom.current().nextInt(minSeats, maxSeats);
             int passengers = ThreadLocalRandom.current().nextInt(0, maxPassengers);
             double initialCost = ThreadLocalRandom.current().nextDouble();
             Airline airline = Airline.getRandom();
 
-            Flight f = create(origin, destination, airline, initialCost, departureTime, maxPassengers);
+            Flight f = create(origin, destination, tripTime, airline, initialCost, departureTime, maxPassengers);
             try {
                 f.incrementPassengers(passengers);
                 return Optional.of(f);
@@ -55,8 +63,8 @@ public class FlightsController {
         return service.getAll().stream().filter(f -> f.getHoursBeforeDeparting() <= hours).toList();
     }
 
-    public Flight create(City origin, City destination, Airline airline, double ticketCost, long departureTime, int maxPassengers) throws IOException {
-        return service.create(origin, destination, airline, ticketCost, departureTime, maxPassengers);
+    public Flight create(City origin, City destination, long tripTime, Airline airline, double ticketCost, long departureTime, int maxPassengers) throws IOException {
+        return service.create(origin, destination, tripTime, airline, ticketCost, departureTime, maxPassengers);
     }
 
     public void clear() throws IOException {

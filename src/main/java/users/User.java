@@ -5,9 +5,7 @@ import passenger.Passenger;
 import utils.interfaces.HasId;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class User implements HasId, Serializable {
     private String id;
@@ -16,7 +14,7 @@ public class User implements HasId, Serializable {
     private List<Booking> bookings;
     private Passenger passenger;
 
-    public User(String id, String username, String password, Booking booking, Passenger passenger) {
+    public User(String id, String username, String password, Passenger passenger) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -24,8 +22,8 @@ public class User implements HasId, Serializable {
         this.passenger = passenger;
     }
 
-    public User(String username) {
-        this.username = username;
+    public static String generateId() {
+        return UUID.randomUUID().toString();
     }
 
     public String getId() {

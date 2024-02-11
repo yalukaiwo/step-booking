@@ -16,13 +16,15 @@ public class Flight implements HasId, Serializable {
     private final City origin;
     private final City destination;
     private final long departureTime;
+    private final long tripTime;
     private final int maxPassengers;
     private final String id;
     private final double ticketCost;
     private final Airline airline;
     private int passengers;
 
-    public Flight(City origin, City destination, Airline airline, double ticketCost, long departureTime, int maxPassengers) {
+    public Flight(City origin, City destination, long tripTime, Airline airline, double ticketCost, long departureTime, int maxPassengers) {
+        this.tripTime = tripTime;
         this.departureTime = departureTime;
         this.ticketCost = airline.getCost(ticketCost);
         this.origin = origin;
@@ -107,5 +109,9 @@ public class Flight implements HasId, Serializable {
 
     public int getFreeSeats() {
         return maxPassengers - passengers;
+    }
+
+    public long getTripTime() {
+        return tripTime;
     }
 }

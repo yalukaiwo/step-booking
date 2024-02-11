@@ -15,8 +15,8 @@ public class FlightsService {
         this.db = dao;
     }
 
-    public Flight create(City origin, City destination, Airline airline, double ticketCost, long departureTime, int maxPassengers) throws IOException {
-        Flight f = new Flight(origin, destination, airline, ticketCost, departureTime, maxPassengers);
+    public Flight create(City origin, City destination, long tripTime, Airline airline, double ticketCost, long departureTime, int maxPassengers) throws IOException {
+        Flight f = new Flight(origin, destination, tripTime, airline, ticketCost, departureTime, maxPassengers);
         db.save(f);
         return f;
     }

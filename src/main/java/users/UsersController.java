@@ -51,4 +51,14 @@ public class UsersController {
             return false;
         }
     }
+
+    public boolean userExists(String username, String password) {
+        try {
+            return readAll().stream()
+                    .anyMatch(user -> user.getUsername().equals(username) && user.getPassword().equals(password));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

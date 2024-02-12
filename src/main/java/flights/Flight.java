@@ -1,16 +1,16 @@
 package flights;
 
+import console.MenuHelper;
 import utils.exceptions.PassengerOverflowException;
 import utils.interfaces.HasId;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.UUID;
 
 public class Flight implements HasId, Serializable {
     private final City origin;
@@ -30,11 +30,11 @@ public class Flight implements HasId, Serializable {
         this.maxPassengers = maxPassengers;
         this.passengers = 0;
         this.airline = airline;
-        this.id = generateId(origin, destination, airline, departureTime, maxPassengers);
+        this.id = generateId();
     }
 
-    public static String generateId(City origin, City destination, Airline airline, long departureTime, int maxPassengers) {
-        return "f@" + origin.toString().trim().toLowerCase().split(" ")[0] + "_" + destination.toString().trim().toLowerCase().split(" ")[0] + "_" + airline.toString() + "_" + departureTime + "_" + maxPassengers;
+    public static String generateId() {
+        return UUID.randomUUID().toString();
     }
 
     public void incrementPassengers(int amount) throws PassengerOverflowException {
@@ -49,8 +49,30 @@ public class Flight implements HasId, Serializable {
 
     public long getHoursBeforeDeparting() {
         Duration d = Duration.between(Instant.now(), Instant.ofEpochMilli(departureTime));
-
         return d.toHours();
+    }
+
+    public String prettyFormat() {
+        String paddedId = padString(getId(), getId().length());
+        String paddedAirline = padString(String.valueOf(getAirline()), 20);
+        String paddedOrigin = padString(String.valueOf(origin), 12);
+        String paddedDestination = padString(String.valueOf(destination), 12);
+        String paddedDateTime = padString(String.valueOf(LocalDateTime.ofInstant(Instant.ofEpochMilli(departureTime), ZoneId.systemDefault())), 20);
+        String paddedSeats = padString(String.valueOf(passengers), 5);
+
+        return MenuHelper.colorize("| " + paddedId + " | " + paddedAirline + " | " + paddedOrigin + " | " + paddedDestination + " | " + paddedDateTime + " | " + paddedSeats + " |", MenuHelper.whiteBoldBackAttribute);
+    }
+
+    private String padString(String str, int length) {
+        if (str.length() >= length) {
+            return str.substring(0, length - 1);
+        } else {
+            StringBuilder sb = new StringBuilder(str);
+            while (sb.length() < length) {
+                sb.append(" ");
+            }
+            return sb.toString();
+        }
     }
 
     @Override

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class UsersService {
-    private UsersDAO userDao;
+    private final UsersDAO userDao;
 
     public UsersService(UsersDAO userDAO) {
         this.userDao = userDAO;

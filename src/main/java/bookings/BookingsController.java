@@ -1,13 +1,16 @@
 package bookings;
 
 import flights.Flight;
+import flights.FlightsController;
 import passenger.Passenger;
 import utils.exceptions.BookingNotFoundException;
+import utils.exceptions.FlightNotFoundException;
 import utils.exceptions.PassengerOverflowException;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class BookingsController {
     private final BookingsService service;
@@ -33,7 +36,6 @@ public class BookingsController {
             return Optional.empty();
         }
     }
-
 
     public void delete(Booking b) throws IOException {
         try {

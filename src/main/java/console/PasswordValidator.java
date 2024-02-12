@@ -25,8 +25,8 @@ public class PasswordValidator {
         return c >= '0' && c <= '9';
     }
 
-    private static  boolean Symbol(char c) {
-        return c == ')' ||c == '(' || c == '$' || c=='&' || c=='*' || c=='!' ;
+    private static boolean Symbol(char c) {
+        return c == ')' || c == '(' || c == '$' || c == '&' || c == '*' || c == '!' || c == '@' || c == '[' || c == ']';
     }
 
     private static boolean SmallLetters(String str){

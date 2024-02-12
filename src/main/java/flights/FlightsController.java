@@ -21,17 +21,10 @@ public class FlightsController {
         this.service = service;
     }
 
-    public Flight create(City origin, City destination, Airline airline, double ticketCost, long departureTime, int maxPassengers) throws IOException {
-        return service.create(origin, destination, airline, ticketCost, departureTime, maxPassengers);
-    }
-
-    public Optional<Flight> generateRandom() throws IOException {
+    public Flight generateRandom() throws IOException {
         City origin = City.getRandom();
         City destination = City.getRandom(origin);
-        long maxSecondsFromNow = 86400;
-        long maxSeconds = Instant.now().getEpochSecond() + maxSecondsFromNow;
-        long departureTime = ThreadLocalRandom.current().nextLong(Instant.now().getEpochSecond(), maxSeconds);
-
+        long departureTime = Instant.ofEpochSecond(ThreadLocalRandom.current().nextLong(Instant.now().getEpochSecond(), Instant.MAX.getEpochSecond())).toEpochMilli();
         int maxPassengers = ThreadLocalRandom.current().nextInt(minSeats, maxSeats);
         int passengers = ThreadLocalRandom.current().nextInt(0, maxPassengers);
         double initialCost = ThreadLocalRandom.current().nextDouble();
@@ -40,32 +33,28 @@ public class FlightsController {
         Flight f = create(origin, destination, airline, initialCost, departureTime, maxPassengers);
         try {
             f.incrementPassengers(passengers);
-            return Optional.of(f);
         } catch (PassengerOverflowException e) {
-            return Optional.empty();
+            throw new RuntimeException(e);
         }
+        return f;
     }
 
-    public List<Flight> generateRandom(int amount) {
-        return IntStream.range(0, amount)
-                .mapToObj(i -> {
-                    try {
-                        return generateRandom().orElse(null); // Return null if flight creation fails
-                    } catch (IOException e) {
-                        e.printStackTrace(); // Handle or log the exception
-                        return null; // Return null if an exception occurs
-                    }
-                })
-                .filter(Objects::nonNull) // Filter out null flights
-                .collect(Collectors.toList());
+    public List<Flight> generateRandom(int amount) throws IOException {
+        ArrayList<Flight> fs = new ArrayList<>();
+
+        for (int i = 0; i < amount; i++) {
+            fs.add(generateRandom());
+        }
+
+        return fs;
     }
 
     public List<Flight> getAllDepartingIn(int hours) throws IOException {
         return service.getAll().stream().filter(f -> f.getHoursBeforeDeparting() <= hours).toList();
     }
 
-    public void clear() throws IOException {
-        service.clear();
+    public Flight create(City origin, City destination, Airline airline, double ticketCost, long departureTime, int maxPassengers) throws IOException {
+        return service.create(origin, destination, airline, ticketCost, departureTime, maxPassengers);
     }
 
     public void delete(Flight f) throws IOException {
@@ -84,25 +73,17 @@ public class FlightsController {
         return service.getAll();
     }
 
-    public Optional<Flight> read(String id) throws IOException {
-        return service.read(id);
-    }
-
     public void save(Flight b) throws IOException {
         service.save(b);
     }
 
-    public void saveAll(List<Flight> xs) throws IOException {
-        service.saveAll(xs);
+    public void save(List<Flight> xs) throws IOException {
+        service.save(xs);
     }
 
-    public List<Flight> searchFlight(City origin, City destination) throws IOException {
+    public List<Flight> search(City origin, City destination) throws IOException {
         return service.getAll().stream()
                 .filter(f -> f.getOrigin().equals(origin) && f.getDestination().equals(destination))
-                .collect(Collectors.toList());
-    }
-
-    public Flight getFlightBuFlightId(String flightId) throws IOException {
-        return service.getFlightBuFlightId(flightId);
+                .toList();
     }
 }

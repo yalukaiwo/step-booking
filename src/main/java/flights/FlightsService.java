@@ -30,28 +30,23 @@ public class FlightsService {
     }
 
     public Flight getById(String id) throws IOException, FlightNotFoundException {
-        Optional<Flight> flightOptional = db.read(id);
-        if (flightOptional.isPresent()) {
-            return flightOptional.get();
-        } else {
-            throw new FlightNotFoundException();
-        }
+        Optional<Flight> f = db.read(id);
+        if (f.isEmpty()) throw new FlightNotFoundException();
+        return f.get();
     }
 
     public List<Flight> getAll() throws IOException {
         return db.readAll();
     }
 
-    public Optional<Flight> read(String id) throws IOException {
-        return db.read(id);
-    }
-
     public void save(Flight b) throws IOException {
         db.save(b);
     }
 
-    public void saveAll(List<Flight> xs) throws IOException {
-        db.saveAll(xs);
+    public void save(List<Flight> fs) throws IOException {
+        for (Flight f : fs) {
+            db.save(f);
+        }
     }
 
     public void clear() throws IOException {
@@ -59,8 +54,5 @@ public class FlightsService {
         for (Flight f : fs) {
             db.delete(f.getId());
         }
-    }
-    public Flight getFlightBuFlightId(String flightId) throws IOException {
-        return db.getFlightByFlightId(flightId);
     }
 }

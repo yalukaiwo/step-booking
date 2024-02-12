@@ -324,7 +324,7 @@ public class ConsoleApp {
     }
 
  */
-
+  
     private void cancelBooking() throws IOException {
         Scanner scanner = new Scanner(System.in);
         if (currentUser.isPresent()) {
@@ -340,7 +340,7 @@ public class ConsoleApp {
                 if (selectedBookingIndex > 0 && selectedBookingIndex <= userBookings.size()) {
                     Booking selectedBooking = userBookings.get(selectedBookingIndex - 1);
                     // Cancel the booking
-                    bookingsController.delete(selectedBooking, flightsController);
+                    bookingsController.delete(selectedBooking);
                     System.out.println("Booking cancelled successfully!");
                 } else {
                     System.out.println("Invalid selection.");

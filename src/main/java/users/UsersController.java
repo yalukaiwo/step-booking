@@ -11,10 +11,6 @@ public class UsersController {
         this.usersService = usersService;
     }
 
-    public Optional<User> read(String id) throws IOException {
-        return usersService.read(id);
-    }
-
     public void save(User u) throws IOException {
         usersService.save(u);
     }

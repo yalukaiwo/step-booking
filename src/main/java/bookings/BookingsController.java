@@ -21,8 +21,8 @@ public class BookingsController {
 
     public Optional<Booking> create(Flight flight, List<Passenger> passengers) throws IOException {
         try {
-            flight.incrementPassengers(1); // Increment passengers by 1 for the single user
-            return Optional.of(service.create(flight, passengers)); // Create booking with single user
+            flight.incrementPassengers(passengers.size());
+            return Optional.of(service.create(flight, passengers));
         } catch (PassengerOverflowException e) {
             return Optional.empty();
         }
@@ -30,33 +30,29 @@ public class BookingsController {
 
     public Optional<Booking> create(Flight flight, Passenger... passengers) throws IOException {
         try {
-            flight.incrementPassengers(passengers.length); // Increment passengers by the number of provided passengers
-            return Optional.of(service.create(flight, List.of(passengers))); // Create booking with provided passengers
+            flight.incrementPassengers(passengers.length);
+            return Optional.of(service.create(flight, List.of(passengers)));
         } catch (PassengerOverflowException e) {
             return Optional.empty();
         }
     }
 
-    public void delete(Booking b, FlightsController fc) throws IOException {
+    public void delete(Booking b) throws IOException {
         try {
-            fc.getById(b.getFlight().getId()).decrementPassengers(b.getPassengers().size());
+            b.getFlight().decrementPassengers(b.getPassengers().size());
             service.delete(b);
         } catch (PassengerOverflowException e) {
             throw new RuntimeException(e);
-        } catch (FlightNotFoundException e) {
-            service.delete(b);
         }
     }
 
-    public void delete(String id, FlightsController fc) throws IOException {
+    public void delete(String id) throws IOException {
         try {
             Booking b = service.getById(id);
-            fc.getById(b.getFlight().getId()).decrementPassengers(b.getPassengers().size());
+            b.getFlight().decrementPassengers(b.getPassengers().size());
             service.delete(id);
         } catch (PassengerOverflowException e) {
             throw new RuntimeException(e);
-        } catch (FlightNotFoundException e) {
-            service.delete(id);
         } catch (BookingNotFoundException e) {
             // do nothing
         }
@@ -74,7 +70,9 @@ public class BookingsController {
         return service.getAll();
     }
 
-    public void clear() throws IOException {
-        service.clear();
+    public void save(List<Booking> bs) throws IOException {
+        for (Booking b : bs) {
+            service.save(b);
+        }
     }
 }

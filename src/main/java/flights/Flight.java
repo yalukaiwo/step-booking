@@ -1,9 +1,9 @@
 package flights;
 
+
 import console.MenuHelper;
 import utils.exceptions.PassengerOverflowException;
 import utils.interfaces.HasId;
-
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
@@ -69,6 +69,7 @@ public class Flight implements HasId, Serializable {
     public int getMaxPassengers() {
         return maxPassengers;
     }
+    
     public int getPassengers() {
         return passengers;
     }
@@ -80,6 +81,7 @@ public class Flight implements HasId, Serializable {
     public double getTicketCost() {
         return ticketCost;
     }
+    
     public int getFreeSeats() {
         return maxPassengers - passengers;
     }

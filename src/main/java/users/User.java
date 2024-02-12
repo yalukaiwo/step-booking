@@ -5,7 +5,9 @@ import passenger.Passenger;
 import utils.interfaces.HasId;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class User implements HasId, Serializable {
     private String id;
@@ -75,7 +77,7 @@ public class User implements HasId, Serializable {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
         User user = (User) object;
-        return Objects.equals(id, user.id) && Objects.equals(passenger, user.passenger);
+        return id.equals(user.id) && passenger.equals(user.passenger);
     }
 
     @Override

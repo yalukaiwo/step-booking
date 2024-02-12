@@ -10,10 +10,6 @@ public class UsersService {
         this.userDao = userDAO;
     }
 
-    public Optional<User> read(String id) throws IOException {
-        return userDao.read(id);
-    }
-
     public void save(User u) throws IOException {
         userDao.save(u);
     }

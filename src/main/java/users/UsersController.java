@@ -27,21 +27,24 @@ public class UsersController {
         return usersService.getByUserName(login);
     }
 
-    // read = getById
-    public Optional<User> getById(String id) throws IOException {
+    public User getById(String id) throws IOException {
         return usersService.getById(id);
     }
 
-    public Optional<User> authenticate(String username, String password) throws IOException {
+    public void addUser(User u) {
+        usersService.addUser(u);
+    }
+
+    public Optional<User> authenticate(String username, String password) {
         return usersService.authenticate(username, password);
     }
 
-    public boolean userExists(String username) {
-        try {
-            return readAll().stream().anyMatch(user -> user.getUsername().equals(username));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+    public boolean userExists(String username) throws IOException {
+        return readAll().stream().anyMatch(user -> user.getUsername().equals(username));
+    }
+
+    public boolean userExists(String username, String password) throws IOException {
+        return readAll().stream()
+                .anyMatch(user -> user.getUsername().equals(username) && user.getPassword().equals(password));
     }
 }

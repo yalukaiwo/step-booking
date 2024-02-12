@@ -24,8 +24,8 @@ public class User implements HasId, Serializable {
         this.passenger = passenger;
     }
 
-    public User(String username) {
-        this.username = username;
+    public static String generateId() {
+        return UUID.randomUUID().toString();
     }
 
     public String getId() {

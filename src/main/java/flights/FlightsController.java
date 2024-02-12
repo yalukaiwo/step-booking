@@ -5,9 +5,12 @@ import utils.exceptions.PassengerOverflowException;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.Objects;
 
 public class FlightsController {
     private static final int minSeats = 50;

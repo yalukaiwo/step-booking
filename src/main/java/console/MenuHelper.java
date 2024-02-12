@@ -9,12 +9,15 @@ import java.util.Scanner;
 public class MenuHelper {
 
     private static final Scanner scanner = new Scanner(System.in);
-    public static final Attribute blueAttribute = new Attribute().bold().withColor(Ansi.ColorFont.BLUE);
+    public static final Attribute blueBoldAttribute = new Attribute().bold().withColor(Ansi.ColorFont.BLUE);
+    public static final Attribute blueBoldBackAttribute = new Attribute().bold().withColor(Ansi.ColorFont.BLUE).withBackground(Ansi.ColorBack.BLACK);
+    public static final Attribute whiteBoldBackAttribute = new Attribute().bold().withColor(Ansi.ColorFont.WHITE).withBackground(Ansi.ColorBack.BLACK);
     public static final Attribute cyanAttribute = new Attribute().withColor(Ansi.ColorFont.CYAN);
     public static final Attribute yellowAttribute = new Attribute().withColor(Ansi.ColorFont.YELLOW);
     public static final Attribute magentaAttribute = new Attribute().withColor(Ansi.ColorFont.MAGENTA);
     public static final Attribute redAttribute = new Attribute().withColor(Ansi.ColorFont.RED);
     public static final Attribute greenAttribute = new Attribute().withColor(Ansi.ColorFont.GREEN);
+    public static final Attribute greenUnderlineAttribute = new Attribute().underline().withColor(Ansi.ColorFont.GREEN);
     private final String FRAME_HORIZONTAL = "══";
     private final String FRAME_VERTICAL = "║";
     private final String FRAME_TOP_LEFT = "╔";
@@ -26,20 +29,20 @@ public class MenuHelper {
     private static final String CAPITAL_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String SMALL_LETTERS = "abcdefghijklmnopqrstuvwxyz";
     private static final String NUMBERS = "0123456789";
-    private static final String SYMBOLS = ")(@$&*![]";
+    private static final String SYMBOLS = "!@#$%^&*()-_+=<>?";
 
-    public void user() {
+    public void userBoard() {
         head();
-        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("    1. View Timetable ", cyanAttribute) + centerText("", 35) + colorize(FRAME_VERTICAL, yellowAttribute));
-        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("    2. View Flight Details", cyanAttribute) + centerText("", 30) + colorize(FRAME_VERTICAL, yellowAttribute));
-        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("    3. Search and Bookings", cyanAttribute) + centerText("", 30) + colorize(FRAME_VERTICAL, yellowAttribute));
-        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("    4. My Bookings", cyanAttribute) + centerText("", 38) + colorize(FRAME_VERTICAL, yellowAttribute));
-        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("    5. Cancel a Booking ", cyanAttribute) + centerText("", 33) + colorize(FRAME_VERTICAL, yellowAttribute));
-        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("    6. End Session  ", cyanAttribute) + centerText("", 36) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  1. View Timetable   ", cyanAttribute) + centerText("", 35) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  2. View Flight Details  ", cyanAttribute) + centerText("", 30) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  3. Search and Bookings  ", cyanAttribute) + centerText("", 30) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  4. My Bookings  ", cyanAttribute) + centerText("", 38) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  5. Cancel a Booking   ", cyanAttribute) + centerText("", 33) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  6. End Session    ", cyanAttribute) + centerText("", 36) + colorize(FRAME_VERTICAL, yellowAttribute));
         end();
     }
 
-    public void visitor() {
+    public void visitorBoard() {
         head();
         System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  1. Log In ", cyanAttribute) + centerText("", 45) + colorize(FRAME_VERTICAL, yellowAttribute));
         System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  2. Sign Up", cyanAttribute) + centerText("", 45) + colorize(FRAME_VERTICAL, yellowAttribute));
@@ -49,8 +52,8 @@ public class MenuHelper {
 
     public void head() {
         System.out.println(colorize(FRAME_TOP_LEFT, yellowAttribute) + repeatString(colorize(FRAME_HORIZONTAL, yellowAttribute), 28) + colorize(FRAME_TOP_RIGHT, yellowAttribute));
-        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  FLIGHT RESERVATION SYSTEM                             ", blueAttribute) + colorize(FRAME_VERTICAL, yellowAttribute));
-        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  Please choose one of the options below to continue.   ", blueAttribute) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  FLIGHT RESERVATION SYSTEM                             ", blueBoldAttribute) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  Please choose one of the options below to continue.   ", blueBoldAttribute) + colorize(FRAME_VERTICAL, yellowAttribute));
         System.out.println(colorize(FRAME_VERTICAL_RIGHT, yellowAttribute) + repeatString(colorize(FRAME_HORIZONTAL, yellowAttribute), 28) + colorize(FRAME_VERTICAL_LEFT, yellowAttribute));
     }
 
@@ -111,11 +114,52 @@ public class MenuHelper {
     }
 
     public String promptString(String message) {
-        System.out.print(message + ": ");
+        System.out.print(message);
         return scanner.nextLine();
     }
 
-    public static String generateRandomPassword() {
+    public static boolean checkPassword(String s) {
+        return hasMinimumLength(s) && containsCapital(s)
+                && containsSmall(s) && containsSymbol(s)
+                && containsNumber(s);
+    }
+
+    private static boolean hasMinimumLength(String string) {
+        return string.length() >= 8;
+    }
+
+    private static boolean containsCapital(String s) {
+        return containsCharacter(s, CAPITAL_LETTERS);
+    }
+
+    private static boolean containsSmall(String s) {
+        return containsCharacter(s, SMALL_LETTERS);
+    }
+
+    private static boolean containsNumber(String s) {
+        return containsCharacter(s, NUMBERS);
+    }
+
+    private static boolean containsSymbol(String s) {
+        return containsCharacter(s, SYMBOLS);
+    }
+
+    private static boolean containsCharacter(String s, String characters) {
+        for (char c : s.toCharArray()) {
+            if (characters.indexOf(c) != -1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void validatePassword(String password) throws InvalidPasswordException {
+        if (!checkPassword(password)) {
+            throw new InvalidPasswordException("Password does not meet the requirements.");
+        }
+    }
+
+    public String generateRandomPassword() {
         Random random = new Random();
         StringBuilder password = new StringBuilder();
 

@@ -15,8 +15,8 @@ public class FlightsService {
         this.db = dao;
     }
 
-    public Flight create(City origin, City destination, long tripTime, Airline airline, double ticketCost, long departureTime, int maxPassengers) throws IOException {
-        Flight f = new Flight(origin, destination, tripTime, airline, ticketCost, departureTime, maxPassengers);
+    public Flight create(City origin, City destination, Airline airline, double ticketCost, long departureTime, int maxPassengers) throws IOException {
+        Flight f = new Flight(origin, destination, airline, ticketCost, departureTime, maxPassengers);
         db.save(f);
         return f;
     }
@@ -30,9 +30,12 @@ public class FlightsService {
     }
 
     public Flight getById(String id) throws IOException, FlightNotFoundException {
-        Optional<Flight> f = db.read(id);
-        if (f.isEmpty()) throw new FlightNotFoundException();
-        return f.get();
+        Optional<Flight> flightOptional = db.read(id);
+        if (flightOptional.isPresent()) {
+            return flightOptional.get();
+        } else {
+            throw new FlightNotFoundException();
+        }
     }
 
     public List<Flight> getAll() throws IOException {
@@ -56,5 +59,8 @@ public class FlightsService {
         for (Flight f : fs) {
             db.delete(f.getId());
         }
+    }
+    public Flight getFlightBuFlightId(String flightId) throws IOException {
+        return db.getFlightByFlightId(flightId);
     }
 }

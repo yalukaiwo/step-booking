@@ -22,8 +22,10 @@ public class FlightsDAO implements DAO<Flight> {
     }
 
     public Optional<Flight> read(String id) throws IOException {
-        List<Flight> bs = worker.readAll();
-        return bs.stream().filter(b -> Objects.equals(b.getId(), id)).findFirst();
+        List<Flight> flights = worker.readAll();
+        return flights.stream()
+                .filter(f -> Objects.equals(f.getId(), id))
+                .findFirst();
     }
 
     public void save(Flight b) throws IOException {
@@ -45,4 +47,15 @@ public class FlightsDAO implements DAO<Flight> {
     public List<Flight> readAll() throws IOException {
         return worker.readAll();
     }
+
+    public Flight getFlightByFlightId(String flightId) throws IOException {
+        List<Flight> flights = readAll();
+        for (Flight flight : flights) {
+            if (flight.getId().equals(flightId)) {
+                return flight;
+            }
+        }
+        return null;
+    }
+
 }

@@ -43,22 +43,12 @@ public class UsersController {
         return usersService.authenticate(username, password);
     }
 
-    public boolean userExists(String username) {
-        try {
-            return readAll().stream().anyMatch(user -> user.getUsername().equals(username));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+    public boolean userExists(String username) throws IOException {
+        return readAll().stream().anyMatch(user -> user.getUsername().equals(username));
     }
 
-    public boolean userExists(String username, String password) {
-        try {
-            return readAll().stream()
-                    .anyMatch(user -> user.getUsername().equals(username) && user.getPassword().equals(password));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+    public boolean userExists(String username, String password) throws IOException {
+        return readAll().stream()
+                .anyMatch(user -> user.getUsername().equals(username) && user.getPassword().equals(password));
     }
 }

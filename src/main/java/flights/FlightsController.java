@@ -5,12 +5,12 @@ import utils.exceptions.PassengerOverflowException;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.Objects;
 
 public class FlightsController {
     private static final int minSeats = 50;
@@ -21,50 +21,47 @@ public class FlightsController {
         this.service = service;
     }
 
-    public Optional<Flight> generateRandom() {
+    public Flight create(City origin, City destination, Airline airline, double ticketCost, long departureTime, int maxPassengers) throws IOException {
+        return service.create(origin, destination, airline, ticketCost, departureTime, maxPassengers);
+    }
+
+    public Optional<Flight> generateRandom() throws IOException {
+        City origin = City.getRandom();
+        City destination = City.getRandom(origin);
+        long maxSecondsFromNow = 86400;
+        long maxSeconds = Instant.now().getEpochSecond() + maxSecondsFromNow;
+        long departureTime = ThreadLocalRandom.current().nextLong(Instant.now().getEpochSecond(), maxSeconds);
+
+        int maxPassengers = ThreadLocalRandom.current().nextInt(minSeats, maxSeats);
+        int passengers = ThreadLocalRandom.current().nextInt(0, maxPassengers);
+        double initialCost = ThreadLocalRandom.current().nextDouble();
+        Airline airline = Airline.getRandom();
+
+        Flight f = create(origin, destination, airline, initialCost, departureTime, maxPassengers);
         try {
-            City origin = City.getRandom();
-            City destination = City.getRandom(origin);
-            long maxSecondsFromNow = 86400;
-            long maxSeconds = Instant.now().getEpochSecond() + maxSecondsFromNow;
-            long departureTime = ThreadLocalRandom.current().nextLong(Instant.now().getEpochSecond(), maxSeconds);
-
-            // Generating trip time between 1 and 6 hours (in seconds)
-            long tripTime = ThreadLocalRandom.current().nextLong(3600, 21600); // 1 hour = 3600 seconds, 6 hours = 21600 seconds
-
-            long arrivalTime = departureTime + tripTime;
-
-            int maxPassengers = ThreadLocalRandom.current().nextInt(minSeats, maxSeats);
-            int passengers = ThreadLocalRandom.current().nextInt(0, maxPassengers);
-            double initialCost = ThreadLocalRandom.current().nextDouble();
-            Airline airline = Airline.getRandom();
-
-            Flight f = create(origin, destination, tripTime, airline, initialCost, departureTime, maxPassengers);
-            try {
-                f.incrementPassengers(passengers);
-                return Optional.of(f);
-            } catch (PassengerOverflowException e) {
-                return Optional.empty();
-            }
-        } catch (IOException e) {
-            // Handle IOException or rethrow it depending on the context
+            f.incrementPassengers(passengers);
+            return Optional.of(f);
+        } catch (PassengerOverflowException e) {
             return Optional.empty();
         }
     }
 
     public List<Flight> generateRandom(int amount) {
         return IntStream.range(0, amount)
-                .mapToObj(i -> generateRandom().orElse(null))
-                .filter(flight -> flight != null)
+                .mapToObj(i -> {
+                    try {
+                        return generateRandom().orElse(null); // Return null if flight creation fails
+                    } catch (IOException e) {
+                        e.printStackTrace(); // Handle or log the exception
+                        return null; // Return null if an exception occurs
+                    }
+                })
+                .filter(Objects::nonNull) // Filter out null flights
                 .collect(Collectors.toList());
     }
 
     public List<Flight> getAllDepartingIn(int hours) throws IOException {
         return service.getAll().stream().filter(f -> f.getHoursBeforeDeparting() <= hours).toList();
-    }
-
-    public Flight create(City origin, City destination, long tripTime, Airline airline, double ticketCost, long departureTime, int maxPassengers) throws IOException {
-        return service.create(origin, destination, tripTime, airline, ticketCost, departureTime, maxPassengers);
     }
 
     public void clear() throws IOException {
@@ -103,5 +100,9 @@ public class FlightsController {
         return service.getAll().stream()
                 .filter(f -> f.getOrigin().equals(origin) && f.getDestination().equals(destination))
                 .collect(Collectors.toList());
+    }
+
+    public Flight getFlightBuFlightId(String flightId) throws IOException {
+        return service.getFlightBuFlightId(flightId);
     }
 }

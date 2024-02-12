@@ -5,7 +5,6 @@ import bookings.BookingsController;
 import flights.City;
 import flights.Flight;
 import flights.FlightsController;
-import flights.FlightsRandomaizer;
 import passenger.Passenger;
 import users.User;
 import users.UsersController;
@@ -37,21 +36,27 @@ public class ConsoleApp {
                 new OperationApp("View Timetable", this::viewTimetable),
                 new OperationApp("View Flight Details", this::viewFlightDetails),
                 new OperationApp("Search and Book Flights", this::searchAndBookFlights),
-                new OperationApp("Show User Bookings", this::showUserBookings),
+                // new OperationApp("Show User Bookings", this::showUserBookings),
                 new OperationApp("Cancel Booking", this::cancelBooking),
                 new OperationApp("Logout", this::exit)
         };
     }
 
     public void start() throws IOException {
-        menuDisplayHelper.visitor();
+        menuDisplayHelper.visitorBoard();
 
         boolean sessionActive = true;
 
         while (sessionActive) {
             try {
                 System.out.print(MenuHelper.colorize(">>> Enter your choice: ", MenuHelper.magentaAttribute));
-                int choice = scanner.nextInt();
+                String input = scanner.nextLine();
+
+                if (input.isEmpty()) {
+                    throw new InputMismatchException("Invalid input. Please enter a valid integer.");
+                }
+
+                int choice = Integer.parseInt(input);
 
                 switch (choice) {
                     case 1:
@@ -67,9 +72,10 @@ public class ConsoleApp {
                     default:
                         System.out.println(MenuHelper.colorize("Invalid choice. Please try again.", MenuHelper.redAttribute));
                 }
-            } catch (InputMismatchException e) {
+            } catch (NumberFormatException e) {
                 System.out.println(MenuHelper.colorize("Invalid input. Please enter a valid integer.", MenuHelper.redAttribute));
-                scanner.nextLine();
+            } catch (InputMismatchException e) {
+                System.out.println(MenuHelper.colorize(e.getMessage(), MenuHelper.redAttribute));
             }
         }
     }
@@ -79,9 +85,12 @@ public class ConsoleApp {
         System.out.println("-------------------------------------------");
         System.out.println(MenuHelper.colorize("Please log in to continue.", MenuHelper.yellowAttribute) + Ansi.RESET);
         System.out.println();
-        String username = menuDisplayHelper.promptValidName(MenuHelper.colorize("Enter your username", MenuHelper.blueAttribute));
-        System.out.print(MenuHelper.colorize("Enter your password: ", MenuHelper.blueAttribute));
+        System.out.print(MenuHelper.colorize("Enter your username: ", MenuHelper.blueBoldBackAttribute));
+        String username = scanner.next().trim().toLowerCase();
+        username = Character.toUpperCase(username.charAt(0)) + username.substring(1);
+        System.out.print(MenuHelper.colorize("Enter your password: ", MenuHelper.blueBoldBackAttribute));
         String password = scanner.next().trim();
+        System.out.println();
         System.out.println(MenuHelper.colorize("Authenticating...", MenuHelper.cyanAttribute) + Ansi.RESET);
         System.out.println();
         if (usersController.userExists(username, password)) {
@@ -98,45 +107,49 @@ public class ConsoleApp {
         System.out.println(MenuHelper.colorize("Welcome to the Flight Reservation System!", MenuHelper.yellowAttribute));
         System.out.println("-------------------------------------------");
         System.out.println(MenuHelper.colorize("Please sign up to continue.", MenuHelper.yellowAttribute) + Ansi.RESET);
-        System.out.println();
-        String name = menuDisplayHelper.promptValidName(MenuHelper.colorize("Enter your name", MenuHelper.blueAttribute));
-        String surname = menuDisplayHelper.promptValidName(MenuHelper.colorize("Enter your surname", MenuHelper.blueAttribute));
-        String username = menuDisplayHelper.promptValidName(MenuHelper.colorize("Enter your username", MenuHelper.blueAttribute));
+        String name = menuDisplayHelper.promptValidName(MenuHelper.colorize("Enter your name: ", MenuHelper.blueBoldAttribute));
+        String surname = menuDisplayHelper.promptValidName(MenuHelper.colorize("Enter your surname: ", MenuHelper.blueBoldAttribute));
+        String username = menuDisplayHelper.promptValidName(MenuHelper.colorize("Enter your username: ", MenuHelper.blueBoldBackAttribute));
 
         try {
             while (true) {
                 if (usersController.userExists(username)) {
                     System.out.println(MenuHelper.colorize("Username already exists. Please choose a different one.", MenuHelper.redAttribute) + Ansi.RESET);
-                    username = menuDisplayHelper.promptValidName(MenuHelper.colorize("Enter your username", MenuHelper.blueAttribute));
+                    username = menuDisplayHelper.promptValidName(MenuHelper.colorize("Enter your username: ", MenuHelper.blueBoldBackAttribute));
                 } else {
                     break;
                 }
             }
-
             String password;
 
             while (true) {
                 String generatedPassword = menuDisplayHelper.generateRandomPassword();
-                // Prompt the user to accept or enter their own password
-                System.out.println(MenuHelper.colorize("Generated password: " + generatedPassword, MenuHelper.greenAttribute) + Ansi.RESET);
+                System.out.println(MenuHelper.colorize("Generated password:", MenuHelper.greenUnderlineAttribute)
+                        + MenuHelper.colorize(" " + generatedPassword, MenuHelper.greenAttribute) + Ansi.RESET);
                 System.out.print(MenuHelper.colorize("Do you want to use this password? (yes/no): ", MenuHelper.cyanAttribute));
-                String choice = scanner.next().trim().toLowerCase();
+                String choice = scanner.nextLine().trim().toLowerCase();
+
                 if (choice.equals("yes")) {
                     password = generatedPassword;
                     break;
                 } else if (choice.equals("no")) {
                     System.out.println(MenuHelper.colorize("Password must be at least 8 characters long and must consist of capital, " +
                             "small letters, numbers, and symbols.", MenuHelper.greenAttribute) + Ansi.RESET);
-                    System.out.print(MenuHelper.colorize("Enter your password: ", MenuHelper.cyanAttribute));
-                    password = scanner.next();
-                    try {
-                        if (PasswordValidator.checkPassword(password)) {
-                            break;
-                        } else {
-                            PasswordValidator.validatePassword(password);
+                    System.out.print(MenuHelper.colorize("Enter your password: ", MenuHelper.blueBoldBackAttribute));
+                    password = scanner.nextLine().trim();
+
+                    if (!password.isEmpty()) {
+                        try {
+                            if (MenuHelper.checkPassword(password)) {
+                                break;
+                            } else {
+                                MenuHelper.validatePassword(password);
+                            }
+                        } catch (InvalidPasswordException e) {
+                            System.out.println(MenuHelper.colorize("Error: " + e.getMessage(), MenuHelper.redAttribute) + Ansi.RESET);
                         }
-                    } catch (InvalidPasswordException e) {
-                        System.out.println(MenuHelper.colorize("Error: " + e.getMessage(), MenuHelper.redAttribute) + Ansi.RESET);
+                    } else {
+                        System.out.println(MenuHelper.colorize("Invalid input. Please enter a valid password.", MenuHelper.redAttribute) + Ansi.RESET);
                     }
                 } else {
                     System.out.println(MenuHelper.colorize("Invalid input. Please enter either 'yes' or 'no'.", MenuHelper.redAttribute) + Ansi.RESET);
@@ -158,16 +171,17 @@ public class ConsoleApp {
     }
 
     public void startBooking() throws IOException {
-        menuDisplayHelper.user();
-        // List<Flight> xs = flightsController.generateRandom(20);
-        // flightsController.saveAll(xs);
+        menuDisplayHelper.userBoard();
+        List<Flight> xs = flightsController.generateRandom(20);
+        flightsController.saveAll(xs);
         boolean sessionActive = true;
 
         while (sessionActive) {
             try {
                 System.out.print(MenuHelper.colorize(">>> Enter your choice: ", MenuHelper.magentaAttribute));
+                System.out.flush();
                 int choice = scanner.nextInt();
-
+                scanner.nextLine();
                 switch (choice) {
                     case 1:
                         viewTimetable();
@@ -179,7 +193,7 @@ public class ConsoleApp {
                         searchAndBookFlights();
                         break;
                     case 4:
-                        showUserBookings();
+                        // showUserBookings();
                         break;
                     case 5:
                         cancelBooking();
@@ -194,42 +208,39 @@ public class ConsoleApp {
             } catch (InputMismatchException e) {
                 System.out.println(MenuHelper.colorize("Invalid input. Please enter a valid integer.", MenuHelper.redAttribute));
                 scanner.nextLine();
-            } catch (FlightNotFoundException e) {
-                throw new RuntimeException(e.getMessage());
             }
         }
     }
 
     private void viewTimetable() throws IOException {
-        FlightsRandomaizer randomizer = new FlightsRandomaizer(10, 50, 500);
-        List<Flight> flights = randomizer.get();
-
-        for (Flight flight : flights) {
-            System.out.println(flight);
-        }
-
-        List<Flight> connectingFlights = randomizer.searchFlightsBetweenCitiesWithConnection(flights);
-        System.out.println("Connecting Flights:");
-        for (Flight flight : connectingFlights) {
-            System.out.println(flight);
-        }
+        List<Flight> flights = flightsController.getAll();
+        System.out.println(MenuHelper.colorize("===================================    TIMETABLE    =======================================", MenuHelper.greenAttribute));
+        headSearchFlights();
+        flights.stream().map(Flight::prettyFormat).forEach(System.out::println);
     }
 
-    private void viewFlightDetails() throws FlightNotFoundException, IOException {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter the flight number: ");
+    private void headSearchFlights() {
+        System.out.println(MenuHelper.colorize("|  ID  |       AIRLINES       |   FLY FROM   |    FLY TO    |      DATE-TIME      | SEATS |", MenuHelper.greenAttribute));
+    }
+
+    private void headSearchBookings() {
+        System.out.println(MenuHelper.colorize("|       Passenger     |    Class    |       Cost       |  ID  |       AIRLINES       |   FLY FROM   |    FLY TO    |      DATE-TIME      |", MenuHelper.greenAttribute));
+    }
+
+    private void viewFlightDetails() throws IOException {
+        System.out.print(MenuHelper.colorize("Enter the flight number: ", MenuHelper.magentaAttribute));
         String flightNumber = scanner.nextLine();
-        Optional<Flight> optionalFlight = Optional.ofNullable(flightsController.getById(flightNumber));
-        if (optionalFlight.isPresent()) {
-            System.out.println("Flight Details: ");
-            Flight flight = optionalFlight.get();
-            System.out.println("Flight ID:" + flight.getId());
-            System.out.println("Airline: " + flight.getAirline());
-            System.out.println("From: " + flight.getDestination());
-            System.out.println("To: " + flight.getOrigin());
-            System.out.println("Date: " + flight.getDepartureTime());
-        } else {
-            System.out.println("Flight with number " + flightNumber + " not found.");
+
+        try {
+            Flight flight = flightsController.getById(flightNumber);
+            if (flight != null) {
+                // System.out.println(flight.prettyFormat());
+                System.out.println(flight);
+            } else {
+                System.out.println("Flight with number " + flightNumber + " not found.");
+            }
+        } catch (FlightNotFoundException e) {
+            System.out.println(MenuHelper.colorize("Flight with number " + flightNumber + " not found.", MenuHelper.redAttribute));
         }
     }
 
@@ -247,7 +258,8 @@ public class ConsoleApp {
 
         // Step 2: Display Search Results
         if (!searchResults.isEmpty()) {
-            System.out.println("Search Results:");
+            System.out.println("===================================     SEARCHING     ======================================");
+            headSearchFlights();
             for (int i = 0; i < searchResults.size(); i++) {
                 System.out.println((i + 1) + ". " + searchResults.get(i));
             }
@@ -294,35 +306,24 @@ public class ConsoleApp {
             System.out.println("No flights found for the given criteria.");
         }
     }
-
+/*
     private void showUserBookings() {
         if (currentUser.isPresent()) {
             User user = currentUser.get();
             List<Booking> userBookings = user.getBookings();
             if (!userBookings.isEmpty()) {
-                System.out.println("Your ID: " + user.getId());
-                System.out.println("Name: " + user.getUsername());
-                System.out.println("Your bookings:");
-
-                // Print booking details
-                for (Booking booking : userBookings) {
-                    System.out.println("Flight ID: " + booking.getFlight().getId());
-                    System.out.println("Airline: " + booking.getFlight().getAirline());
-                    System.out.println("From: " + booking.getFlight().getOrigin());
-                    System.out.println("To: " + booking.getFlight().getDestination());
-                    System.out.println("Date: " + booking.getFlight().getDepartureTime());
-                    System.out.println("Passengers: " + booking.getPassengers());
-                    System.out.println("Cost: " + booking.getFlight().getTicketCost());
-                    System.out.println("Class: " + booking.getFlight().getClass());
-                }
+                System.out.println("==========================================================================");
+                headSearchBookings();
+                userBookings.stream().map(Booking::prettyFormat).forEach(System.out::println);
+                System.out.println("==========================================================================");
                 System.out.println("Total bookings: " + userBookings.size());
             } else {
                 System.out.println("You have no bookings.");
             }
-        } else {
-            System.out.println("User not authenticated.");
         }
     }
+
+ */
 
     private void cancelBooking() throws IOException {
         Scanner scanner = new Scanner(System.in);

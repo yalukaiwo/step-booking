@@ -23,9 +23,9 @@ public class FlightsDAO implements DAO<Flight> {
     }
 
     public Optional<Flight> read(String id) throws IOException {
-        List<Flight> bs = worker.readAll();
+        List<Flight> fs = worker.readAll();
         LoggerService.info("Trying to read flight with id: " + id);
-        return bs.stream().filter(b -> Objects.equals(b.getId(), id)).findFirst();
+        return fs.stream().filter(f -> id.equals(f.getId())).findFirst();
     }
 
     public void save(Flight b) throws IOException {

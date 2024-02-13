@@ -8,6 +8,7 @@ import flights.FlightsService;
 import users.UsersController;
 import users.UsersDAO;
 import users.UsersService;
+import utils.exceptions.FlightNotFoundException;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +20,6 @@ public class Main {
         FlightsController flightsController = new FlightsController(new FlightsService(new FlightsDAO(new File("flights.bin"))));
 
         ConsoleApp consoleApp = new ConsoleApp(usersController, bookingsController, flightsController);
-        consoleApp.generateRandomFlights(10);
         consoleApp.start();
     }
 }

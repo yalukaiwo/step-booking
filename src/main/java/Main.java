@@ -20,9 +20,6 @@ public class Main {
         FlightsController flightsController = new FlightsController(new FlightsService(new FlightsDAO(new File("flights.bin"))));
 
         ConsoleApp consoleApp = new ConsoleApp(usersController, bookingsController, flightsController);
-        try {System.out.println(flightsController.getById("ab2b352c-3a10-41e6-87ee-a24a8a6771a"));} catch (FlightNotFoundException e) {
-            System.out.println("NF");
-        }
         consoleApp.start();
     }
 }

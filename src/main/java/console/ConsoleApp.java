@@ -2,6 +2,7 @@ package console;
 
 import bookings.Booking;
 import bookings.BookingsController;
+import console.colored_console.Ansi;
 import flights.City;
 import flights.Flight;
 import flights.FlightsController;
@@ -11,19 +12,18 @@ import users.UsersController;
 import utils.exceptions.FlightNotFoundException;
 import utils.exceptions.InvalidPasswordException;
 import utils.exceptions.UserRegisterException;
-import console.colored_console.Ansi;
 
 import java.io.IOException;
 import java.util.*;
 
 public class ConsoleApp {
+    private static final Scanner scanner = new Scanner(System.in);
     private final UsersController usersController;
     private final BookingsController bookingsController;
     private final FlightsController flightsController;
-    private Optional<User> currentUser;
     private final OperationApp[] operations;
     private final MenuHelper menuDisplayHelper;
-    private static final Scanner scanner = new Scanner(System.in);
+    private Optional<User> currentUser;
 
     public ConsoleApp(UsersController usersController, BookingsController bookingsController, FlightsController flightsController) {
         this.usersController = usersController;
@@ -170,10 +170,13 @@ public class ConsoleApp {
         System.out.println(MenuHelper.colorize("Exiting FLIGHT RESERVATION SYSTEM. Goodbye!", MenuHelper.magentaAttribute) + Ansi.RESET);
     }
 
+    public void generateRandomFlights(int amount) throws IOException {
+        List<Flight> xs = flightsController.generateRandom(amount);
+        flightsController.save(xs);
+    }
+
     public void startBooking() throws IOException {
         menuDisplayHelper.userBoard();
-        List<Flight> xs = flightsController.generateRandom(20);
-        flightsController.saveAll(xs);
         boolean sessionActive = true;
 
         while (sessionActive) {
@@ -220,7 +223,7 @@ public class ConsoleApp {
     }
 
     private void headSearchFlights() {
-        System.out.println(MenuHelper.colorize("|  ID  |       AIRLINES       |   FLY FROM   |    FLY TO    |      DATE-TIME      | SEATS |", MenuHelper.greenAttribute));
+        System.out.println(MenuHelper.colorize("|                  ID                 |       AIRLINES       |   FLY FROM   |    FLY TO    |      DATE-TIME      | SEATS |", MenuHelper.greenAttribute));
     }
 
     private void headSearchBookings() {
@@ -254,7 +257,7 @@ public class ConsoleApp {
         City destination = City.valueOf(scanner.nextLine());
         // You can add more search criteria such as date, number of passengers, etc.
 
-        List<Flight> searchResults = flightsController.searchFlight(origin, destination);
+        List<Flight> searchResults = flightsController.search(origin, destination);
 
         // Step 2: Display Search Results
         if (!searchResults.isEmpty()) {
@@ -324,7 +327,7 @@ public class ConsoleApp {
     }
 
  */
-  
+
     private void cancelBooking() throws IOException {
         Scanner scanner = new Scanner(System.in);
         if (currentUser.isPresent()) {

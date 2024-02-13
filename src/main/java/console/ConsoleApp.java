@@ -223,7 +223,7 @@ public class ConsoleApp {
     }
 
     private void headSearchFlights() {
-        System.out.println(MenuHelper.colorize("|                  ID                 |       AIRLINES       |   FLY FROM   |    FLY TO    |      DATE-TIME      | SEATS |", MenuHelper.greenAttribute));
+        System.out.println(MenuHelper.colorize("|                  ID                  |       AIRLINES       |   FLY FROM   |    FLY TO    |      DATE-TIME      | SEATS |", MenuHelper.greenAttribute));
     }
 
     private void headSearchBookings() {

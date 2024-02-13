@@ -5,16 +5,15 @@ import utils.exceptions.PassengerOverflowException;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.Objects;
 
 public class FlightsController {
     private static final int minSeats = 50;
     private static final int maxSeats = 500;
+    private static final int monthsCap = 12;
     private final FlightsService service;
 
     public FlightsController(FlightsService service) {
@@ -24,7 +23,7 @@ public class FlightsController {
     public Flight generateRandom() throws IOException {
         City origin = City.getRandom();
         City destination = City.getRandom(origin);
-        long departureTime = Instant.ofEpochSecond(ThreadLocalRandom.current().nextLong(Instant.now().getEpochSecond(), Instant.MAX.getEpochSecond())).toEpochMilli();
+        long departureTime = ThreadLocalRandom.current().nextLong(Instant.now().toEpochMilli(), ZonedDateTime.now().plusMonths(monthsCap).toInstant().toEpochMilli());
         int maxPassengers = ThreadLocalRandom.current().nextInt(minSeats, maxSeats);
         int passengers = ThreadLocalRandom.current().nextInt(0, maxPassengers);
         double initialCost = ThreadLocalRandom.current().nextDouble();

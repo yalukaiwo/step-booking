@@ -43,11 +43,4 @@ public class BookingsService {
     public List<Booking> getAll() throws IOException {
         return db.readAll();
     }
-
-    public void clear() throws IOException {
-        List<Booking> fs = db.readAll();
-        for (Booking f : fs) {
-            db.delete(f.getId());
-        }
-    }
 }

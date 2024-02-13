@@ -11,19 +11,19 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 public class Booking implements HasId, Serializable {
     private final String id;
     private final List<Passenger> passengers;
     private final Flight flight;
-}
 
-    public static String generateId(Flight flight, List<Passenger> passengers) {
-        return "b@" + flight.getOrigin().toString().trim().toLowerCase().split(" ")[0] + "_" + flight.getDestination().toString().trim().toLowerCase().split(" ")[0] + "_" + flight.getDepartureTime() + "_" + flight.getMaxPassengers() + "_" + flight.getPassengers() + "_" + passengers.size();
+    public static String generateId() {
+        return UUID.randomUUID().toString();
     }
 
     public Booking(Flight flight, List<Passenger> passengers) {
-        this.id = generateId(flight, passengers);
+        this.id = generateId();
         this.passengers = passengers;
         this.flight = flight;
     }
@@ -37,7 +37,7 @@ public class Booking implements HasId, Serializable {
     public int hashCode() {
         return Objects.hash(id, passengers, flight);
     }
-/*
+
     public String prettyFormat() {
         LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(this.flight.getDepartureTime()), ZoneId.systemDefault());
 
@@ -54,8 +54,6 @@ public class Booking implements HasId, Serializable {
                 MenuHelper.whiteBoldBackAttribute
         );
     }
-
- */
 
     private String padString(String str, int length) {
         if (str.length() >= length) {

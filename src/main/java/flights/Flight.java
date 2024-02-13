@@ -4,6 +4,7 @@ import console.MenuHelper;
 import utils.exceptions.PassengerOverflowException;
 import utils.interfaces.HasId;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
@@ -13,6 +14,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class Flight implements HasId, Serializable {
+    @Serial
+    private static final long serialVersionUID = 1234567L;
     private final City origin;
     private final City destination;
     private final long departureTime;
@@ -96,7 +99,7 @@ public class Flight implements HasId, Serializable {
 
     @Override
     public String toString() {
-        return "Flight{origin: " + origin + ", destination: " + destination + ", departureTime: " + LocalDateTime.ofInstant(Instant.ofEpochMilli(departureTime), ZoneId.systemDefault()) + ", passengers: " + passengers + ", maxPassengers: " + maxPassengers + "}";
+        return "Flight{id: " + id + ", origin: " + origin + ", destination: " + destination + ", departureTime: " + LocalDateTime.ofInstant(Instant.ofEpochMilli(departureTime), ZoneId.systemDefault()) + ", passengers: " + passengers + ", maxPassengers: " + maxPassengers + "}";
     }
 
     public City getDestination() {

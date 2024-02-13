@@ -4,6 +4,7 @@ import bookings.Booking;
 import passenger.Passenger;
 import utils.interfaces.HasId;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,11 +12,14 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class User implements HasId, Serializable {
+    @Serial
+    private static final long serialVersionUID = 1234567L;
     private String id;
     private String username;
     private String password;
     private List<Booking> bookings;
     private Passenger passenger;
+
 
     public User(String id, String username, String password, Passenger passenger) {
         this.id = id;

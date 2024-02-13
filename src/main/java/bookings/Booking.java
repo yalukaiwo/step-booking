@@ -5,6 +5,7 @@ import flights.Flight;
 import passenger.Passenger;
 import utils.interfaces.HasId;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -14,6 +15,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class Booking implements HasId, Serializable {
+    @Serial
+    private static final long serialVersionUID = 1234567L;
     private final String id;
     private final List<Passenger> passengers;
     private final Flight flight;

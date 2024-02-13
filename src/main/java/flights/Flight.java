@@ -68,7 +68,7 @@ public class Flight implements HasId, Serializable {
 
     private String padString(String str, int length) {
         if (str.length() >= length) {
-            return str.substring(0, length - 1);
+            return str.substring(0, length);
         } else {
             StringBuilder sb = new StringBuilder(str);
             while (sb.length() < length) {

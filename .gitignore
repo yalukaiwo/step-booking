@@ -42,3 +42,4 @@ application.log
 flights.bin
 users.bin
 bookings.bin
+application.log.lck

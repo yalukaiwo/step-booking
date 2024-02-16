@@ -2,13 +2,12 @@ import bookings.*;
 import console.ConsoleApp;
 import flights.*;
 import users.*;
-import utils.exceptions.UserNotFoundException;
 
 import java.io.File;
 import java.io.IOException;
 
 public class Main {
-    public static void main(String[] args) throws IOException, UserNotFoundException {
+    public static void main(String[] args) throws IOException {
         UsersController usersController = new UsersController(new UsersService(new UsersDAO(new File("users.bin"))));
         BookingsController bookingsController = new BookingsController(new BookingsService(new BookingsDAO(new File("bookings.bin"))));
         FlightsController flightsController = new FlightsController(new FlightsService(new FlightsDAO(new File("flights.bin"))));

@@ -37,7 +37,7 @@ public class UsersController {
         return usersService.getUserByUsername(username);
     }
 
-    public User updateUser(User updatedUser) throws IOException, UserNotFoundException {
+    public User updateUser(User updatedUser) throws IOException {
         return usersService.updateUser(updatedUser);
     }
 

@@ -47,7 +47,7 @@ public class UsersService {
         return usersDao.getUserByUsername(username);
     }
 
-    public User updateUser(User updatedUser) throws IOException, UserNotFoundException {
+    public User updateUser(User updatedUser) throws IOException {
         return usersDao.updateUser(updatedUser);
     }
 

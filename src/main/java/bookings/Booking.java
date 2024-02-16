@@ -7,9 +7,7 @@ import utils.interfaces.HasId;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -19,24 +17,17 @@ public class Booking implements HasId, Serializable {
     private final String id;
     private final List<Passenger> passengers;
     private final Flight flight;
-    private final String passengerClass;
+    private final PassengerClass passengerClass;
 
     public static String generateId() {
         return UUID.randomUUID().toString();
     }
 
-    private static final List<String> passengerClasses = Arrays.asList(
-            "ECONOMY",
-            "PREMIUM_ECONOMY",
-            "BUSINESS",
-            "FIRST_CLASS"
-    );
-
-    public static String selectRandomPassengerClass() {
+    public PassengerClass selectRandomPassengerClass() {
+        PassengerClass[] classes = PassengerClass.values();
         Random random = new Random();
-        int randomIndex = random.nextInt(passengerClasses.size());
-        String randomClassName = passengerClasses.get(randomIndex);
-        return randomClassName;
+        int randomIndex = random.nextInt(classes.length);
+        return classes[randomIndex];
     }
 
     public Booking(Flight flight, List<Passenger> passengers) {
@@ -46,7 +37,6 @@ public class Booking implements HasId, Serializable {
         this.passengerClass = selectRandomPassengerClass();
     }
 
-
     public Flight getFlight() {
         return flight;
     }
@@ -55,7 +45,7 @@ public class Booking implements HasId, Serializable {
         return passengers;
     }
 
-    public String getPassengerClass() {
+    public PassengerClass getPassengerClass() {
         return passengerClass;
     }
 
@@ -108,7 +98,7 @@ public class Booking implements HasId, Serializable {
             return sb.toString();
         }
     }
-  
+
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;

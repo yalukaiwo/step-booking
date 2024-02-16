@@ -35,8 +35,7 @@ public class ConsoleApp {
         };
     }
 
-    public void start() throws IOException, UserNotFoundException {
-        // System.out.println(usersController.readAll());
+    public void start() throws IOException {
         while (globalSessionActive = true) {
             try {
                 menuDisplayHelper.visitorBoard();
@@ -97,7 +96,7 @@ public class ConsoleApp {
         return generatedPassword;
     }
 
-    private User login() throws IOException, ExitSessionException, UserNotFoundException {
+    private User login() throws IOException, ExitSessionException {
         authentificationHead();
         System.out.println(MenuHelper.colorize("Please log in to continue.", MenuHelper.yellowAttribute) + Ansi.RESET);
         System.out.println();
@@ -130,7 +129,6 @@ public class ConsoleApp {
                 this.currentUser = usersController.updatePassword(username, password);
                 this.currentUser = usersController.updateUser(this.currentUser);
                 setCurrentUser(this.currentUser);
-                // System.out.println(usersController.readAll());
                 System.out.println(MenuHelper.colorize("You have successfully logged in", MenuHelper.greenAttribute) + Ansi.RESET);
                 startBooking();
                 return this.currentUser;
@@ -146,7 +144,6 @@ public class ConsoleApp {
                             this.currentUser = usersController.updatePassword(username, password);
                             usersController.updateUser(this.currentUser);
                             setCurrentUser(this.currentUser);
-                            // System.out.println(usersController.readAll());
                             System.out.println(MenuHelper.colorize("You have successfully logged in", MenuHelper.greenAttribute) + Ansi.RESET);
                             startBooking();
                             return this.currentUser;
@@ -266,7 +263,6 @@ public class ConsoleApp {
                         cancelBooking();
                         break;
                     case 6:
-                        // System.out.println(usersController.readAll());
                         globalSessionActive = false;
                         exit();
                     default:
@@ -527,6 +523,10 @@ public class ConsoleApp {
                 break;
             }
 
+            if (connectingFlights.isEmpty()) {
+                return;
+            }
+
             while (true) {
                 System.out.print(MenuHelper.colorize("\nSelect the connecting flight you want to book (or -1 to exit): ", MenuHelper.cyanAttribute) + Ansi.RESET);
                 String selectedConnectingFlightUUID = scanner.nextLine().trim();
@@ -609,9 +609,8 @@ public class ConsoleApp {
         headSearchBookings();
     }
 
-    private void showUserBookings() throws UserNotFoundException, IOException {
+    private void showUserBookings() throws UserNotFoundException {
         setCurrentUser(this.currentUser);
-        // System.out.println(usersController.readAll());
         if (this.currentUser != null) {
             List<Booking> userBookings = this.currentUser.getBookings();
             if (!userBookings.isEmpty()) {
@@ -627,7 +626,6 @@ public class ConsoleApp {
 
     private void cancelBooking() throws IOException, UserNotFoundException, ExitSessionException {
         setCurrentUser(this.currentUser);
-        // System.out.println(usersController.readAll());
         List<Booking> userBookings = this.currentUser.getBookings();
         while (true) {
             try {

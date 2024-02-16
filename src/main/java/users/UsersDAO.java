@@ -74,7 +74,7 @@ public class UsersDAO implements DAO<User> {
         }
     }
 
-    public User updateUser(User updatedUser) throws IOException, UserNotFoundException {
+    public User updateUser(User updatedUser) throws IOException {
         List<User> allUsers = worker.readAll();
 
         int index = -1;
@@ -92,7 +92,7 @@ public class UsersDAO implements DAO<User> {
             return updatedUser;
         } else {
             LoggerService.error("User not found with ID: " + updatedUser.getId());
-            throw new UserNotFoundException();
+            return null;
         }
     }
 

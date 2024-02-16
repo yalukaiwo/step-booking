@@ -1,8 +1,10 @@
 package users;
 
+import bookings.Booking;
+import utils.exceptions.UserNotFoundException;
+
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class UsersController {
     private final UsersService usersService;
@@ -23,19 +25,7 @@ public class UsersController {
         return usersService.readAll();
     }
 
-    public User getByUserName(String login) throws IOException {
-        return usersService.getByUserName(login);
-    }
-
-    public User getById(String id) throws IOException {
-        return usersService.getById(id);
-    }
-
-    public void addUser(User u) {
-        usersService.addUser(u);
-    }
-
-    public Optional<User> authenticate(String username, String password) {
+    public User authenticate(String username, String password) throws IOException {
         return usersService.authenticate(username, password);
     }
 
@@ -43,8 +33,29 @@ public class UsersController {
         return readAll().stream().anyMatch(user -> user.getUsername().equals(username));
     }
 
-    public boolean userExists(String username, String password) throws IOException {
-        return readAll().stream()
-                .anyMatch(user -> user.getUsername().equals(username) && user.getPassword().equals(password));
+    public User getUserByUserName(String username) throws IOException {
+        return usersService.getUserByUsername(username);
     }
+
+    public User updateUser(User updatedUser) throws IOException, UserNotFoundException {
+        return usersService.updateUser(updatedUser);
+    }
+
+    public User updatePassword(String username, String newPassword) throws IOException {
+        return usersService.updatePassword(username, newPassword);
+    }
+
+    public Optional<Booking> findUserBookingById(User user, String bookingId) {
+        return usersService.findUserBookingById(user, bookingId);
+    }
+
+    public boolean deleteBooking(User user, String bookingId) throws IOException {
+        return usersService.deleteBooking(user, bookingId);
+    }
+
+    public void addBooking(User user, Booking booking) {
+        usersService.addBooking(user, booking);
+    }
+
+
 }

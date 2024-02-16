@@ -3,8 +3,7 @@ package flights;
 import utils.exceptions.FlightNotFoundException;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class FlightsService {
     private final FlightsDAO db;
@@ -13,8 +12,8 @@ public class FlightsService {
         this.db = dao;
     }
 
-    public Flight create(City origin, City destination, Airline airline, double ticketCost, long departureTime, int maxPassengers) throws IOException {
-        Flight f = new Flight(origin, destination, airline, ticketCost, departureTime, maxPassengers);
+    public Flight create(City origin, City destination, Airline airline, double ticketCost, long departureTime, long arrivalTime, int maxPassengers) throws IOException {
+        Flight f = new Flight(origin, destination, airline, ticketCost, departureTime, arrivalTime, maxPassengers);
         db.save(f);
         return f;
     }
@@ -44,13 +43,6 @@ public class FlightsService {
     public void save(List<Flight> fs) throws IOException {
         for (Flight f : fs) {
             db.save(f);
-        }
-    }
-
-    public void clear() throws IOException {
-        List<Flight> fs = db.readAll();
-        for (Flight f : fs) {
-            db.delete(f.getId());
         }
     }
 }

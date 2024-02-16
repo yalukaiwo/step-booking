@@ -10,6 +10,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -19,13 +20,15 @@ public class Flight implements HasId, Serializable {
     private final City origin;
     private final City destination;
     private final long departureTime;
+    private final long arrivalTime;
     private final int maxPassengers;
     private final String id;
     private final double ticketCost;
     private final Airline airline;
     private int passengers;
 
-    public Flight(City origin, City destination, Airline airline, double ticketCost, long departureTime, int maxPassengers) {
+    public Flight(City origin, City destination, Airline airline, double ticketCost, long departureTime, long arrivalTime, int maxPassengers) {
+        this.arrivalTime = arrivalTime;
         this.departureTime = departureTime;
         this.ticketCost = airline.getCost(ticketCost);
         this.origin = origin;
@@ -55,15 +58,22 @@ public class Flight implements HasId, Serializable {
         return d.toHours();
     }
 
+    private String formatDateTime(long time) {
+        Instant instant = Instant.ofEpochMilli(time);
+        LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+        return dateTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+    }
+
     public String prettyFormat() {
         String paddedId = padString(getId(), getId().length());
         String paddedAirline = padString(String.valueOf(getAirline()), 20);
         String paddedOrigin = padString(String.valueOf(origin), 12);
         String paddedDestination = padString(String.valueOf(destination), 12);
-        String paddedDateTime = padString(String.valueOf(LocalDateTime.ofInstant(Instant.ofEpochMilli(departureTime), ZoneId.systemDefault())), 20);
-        String paddedSeats = padString(String.valueOf(passengers), 5);
+        String paddedDateTimeDeparture = padString(formatDateTime(departureTime), 18);
+        String paddedDateTimeArrival = padString(formatDateTime(arrivalTime), 18);
+        String paddedSeats = padString(String.valueOf(maxPassengers), 5);
 
-        return MenuHelper.colorize("| " + paddedId + " | " + paddedAirline + " | " + paddedOrigin + " | " + paddedDestination + " | " + paddedDateTime + " | " + paddedSeats + " |", MenuHelper.whiteBoldBackAttribute);
+        return MenuHelper.colorize("| " + paddedId + " | " + paddedAirline + " | " + paddedOrigin + " | " + paddedDestination + " | " + paddedDateTimeDeparture + " | " + paddedDateTimeArrival + " | " + paddedSeats + " |", MenuHelper.whiteBoldBackAttribute);
     }
 
     private String padString(String str, int length) {
@@ -112,6 +122,10 @@ public class Flight implements HasId, Serializable {
 
     public long getDepartureTime() {
         return departureTime;
+    }
+
+    public long getArrivalTime() {
+        return arrivalTime;
     }
 
     public int getMaxPassengers() {

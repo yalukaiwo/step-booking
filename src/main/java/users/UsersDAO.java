@@ -1,8 +1,8 @@
 package users;
 
-import workers.DataWorker;
-import workers.FileWorker;
-import workers.MapWorker;
+import bookings.Booking;
+import utils.exceptions.UserNotFoundException;
+import workers.*;
 import utils.interfaces.DAO;
 import logger.LoggerService;
 
@@ -13,17 +13,8 @@ import java.util.*;
 public class UsersDAO implements DAO<User> {
     private final DataWorker<User> worker;
 
-    public DataWorker<User> getWorker() {
-        return worker;
-    }
-
     public UsersDAO(File f) {
         this.worker = new FileWorker<>(f);
-    }
-
-    // FOR TESTING PURPOSES
-    public UsersDAO(HashMap<String, User> us) {
-        this.worker = new MapWorker<>(us);
     }
 
     public Optional<User> read(String id) throws IOException {
@@ -31,7 +22,7 @@ public class UsersDAO implements DAO<User> {
             LoggerService.info("Attempting to read user with id: " + id);
             List<User> bs = worker.readAll();
             Optional<User> userOptional = bs.stream().filter(b -> Objects.equals(b.getId(), id)).findFirst();
-            if(userOptional.isPresent()) {
+            if (userOptional.isPresent()) {
                 LoggerService.info("User with id " + id + " was found.");
             } else {
                 LoggerService.info("User with id " + id + " was not found.");
@@ -43,18 +34,22 @@ public class UsersDAO implements DAO<User> {
         }
     }
 
+    // FOR TESTING PURPOSES
+    public UsersDAO(HashMap<String, User> us) {
+        this.worker = new MapWorker<>(us);
+    }
+
     public void save(User u) throws IOException {
-        try {
-            LoggerService.info("Saving user: " + u);
-            ArrayList<User> us = new ArrayList<>(worker.readAll());
-            us.remove(u);
-            us.add(u);
-            worker.saveAll(us);
-            LoggerService.info("User saved successfully: " + u);
-        } catch (IOException e) {
-            LoggerService.error("Error occurred while saving user: " + u);
-            throw e;
-        }
+        ArrayList<User> us = new ArrayList<>(worker.readAll());
+        us.remove(u);
+        us.add(u);
+        worker.saveAll(us);
+        LoggerService.info("User saved successfully: " + u);
+    }
+
+    public void saveAll(List<User> users) throws IOException {
+        worker.saveAll(users);
+        LoggerService.info("Users saved successfully: " + users);
     }
 
     public void delete(String id) throws IOException {
@@ -76,6 +71,73 @@ public class UsersDAO implements DAO<User> {
         } catch (IOException e) {
             LoggerService.error("Error occurred while reading all users");
             throw e;
+        }
+    }
+
+    public User updateUser(User updatedUser) throws IOException, UserNotFoundException {
+        List<User> allUsers = worker.readAll();
+
+        int index = -1;
+        for (int i = 0; i < allUsers.size(); i++) {
+            if (allUsers.get(i).getId().equals(updatedUser.getId())) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index != -1) {
+            allUsers.set(index, updatedUser);
+            worker.saveAll(allUsers);
+            LoggerService.info("User updated successfully: " + updatedUser);
+            return updatedUser;
+        } else {
+            LoggerService.error("User not found with ID: " + updatedUser.getId());
+            throw new UserNotFoundException();
+        }
+    }
+
+    public User updatePassword(String username, String newPassword) throws IOException {
+        User user = getUserByUsername(username);
+        if (user != null) {
+            user.setPassword(newPassword);
+            save(user);
+            return user;
+        }
+        return null;
+    }
+
+    public User getUserByUsername(String username) throws IOException {
+        List<User> userList = readAll();
+        for (User user : userList) {
+            if (user.getUsername().equals(username)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+    public Optional<Booking> findUserBookingById(User user, String bookingId) {
+        return user.getBookings().stream()
+                .filter(booking -> booking.getId().equals(bookingId))
+                .findAny();
+    }
+
+    public boolean deleteBooking(User user, String bookingId) throws IOException {
+        Optional<Booking> bookingToRemove = findUserBookingById(user, bookingId);
+        if (bookingToRemove.isPresent()) {
+            Booking bookingToDelete = bookingToRemove.get();
+            boolean removed = user.getBookings().remove(bookingToDelete);
+            if (removed) {
+                save(user);
+                LoggerService.info("Booking with ID " + bookingId + " deleted successfully for user " + user.getId());
+                return true;
+            } else {
+                LoggerService.error("Failed to delete booking with ID " + bookingId + " for user " + user.getId());
+                return false;
+            }
+        } else {
+            LoggerService.error("Booking not found with ID: " + bookingId + " for user " + user.getId());
+            return false;
         }
     }
 }

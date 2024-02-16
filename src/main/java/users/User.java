@@ -4,16 +4,18 @@ import bookings.Booking;
 import passenger.Passenger;
 import utils.interfaces.HasId;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.*;
 
 public class User implements Serializable, HasId {
+    @Serial
     private static final long serialVersionUID = 1234567L;
     private String id;
     private String username;
     private String password;
     private List<Booking> bookings;
-    private Passenger passenger;
+    private final Passenger passenger;
 
     public User(String id, String username, String password, Passenger passenger) {
         this.id = id;

@@ -1,7 +1,6 @@
 package users;
 
 import bookings.Booking;
-import utils.exceptions.UserNotFoundException;
 import workers.*;
 import utils.interfaces.DAO;
 import logger.LoggerService;

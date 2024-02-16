@@ -390,6 +390,7 @@ public class ConsoleApp {
                     System.out.println(MenuHelper.colorize("Invalid input. Flight name cannot be empty.", MenuHelper.redAttribute) + Ansi.RESET);
                     continue;
                 }
+
                 if ("-1".equals(selectedFlightNumber)) {
                     return "-1";
                 }

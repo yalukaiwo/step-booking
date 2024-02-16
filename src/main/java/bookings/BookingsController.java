@@ -1,13 +1,11 @@
 package bookings;
 
 import flights.Flight;
+import utils.exceptions.*;
 import passenger.Passenger;
-import utils.exceptions.BookingNotFoundException;
-import utils.exceptions.PassengerOverflowException;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class BookingsController {
     private final BookingsService service;

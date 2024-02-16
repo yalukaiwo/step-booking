@@ -4,22 +4,16 @@ import bookings.Booking;
 import passenger.Passenger;
 import utils.interfaces.HasId;
 
-import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
-public class User implements HasId, Serializable {
-    @Serial
+public class User implements Serializable, HasId {
     private static final long serialVersionUID = 1234567L;
     private String id;
     private String username;
     private String password;
     private List<Booking> bookings;
     private Passenger passenger;
-
 
     public User(String id, String username, String password, Passenger passenger) {
         this.id = id;
@@ -69,25 +63,17 @@ public class User implements HasId, Serializable {
         return passenger;
     }
 
-    public void setPassenger(Passenger passenger) {
-        this.passenger = passenger;
-    }
-
-    public void addBooking(Booking booking) {
-        bookings.add(booking);
-    }
-
     @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        User user = (User) object;
-        return id.equals(user.id) && passenger.equals(user.passenger);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, passenger);
+        return Objects.hash(id);
     }
 
     @Override
@@ -96,7 +82,7 @@ public class User implements HasId, Serializable {
                 "id='" + id + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
-                ", booking=" + bookings +
+                ", bookings=" + bookings +
                 ", passenger=" + passenger +
                 '}';
     }

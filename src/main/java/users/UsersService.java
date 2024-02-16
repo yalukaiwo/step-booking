@@ -1,25 +1,30 @@
 package users;
 
+import bookings.Booking;
+import utils.exceptions.UserNotFoundException;
+
 import java.io.IOException;
 import java.util.*;
 
 public class UsersService {
-    private final UsersDAO userDao;
+    private final UsersDAO usersDao;
 
     public UsersService(UsersDAO userDAO) {
-        this.userDao = userDAO;
+        this.usersDao = userDAO;
     }
 
     public void save(User u) throws IOException {
-        userDao.save(u);
+        List<User> users = readAll();
+        users.add(u);
+        usersDao.saveAll(users);
     }
 
     public void delete(String id) throws IOException {
-        userDao.delete(id);
+        usersDao.delete(id);
     }
 
     public List<User> readAll() throws IOException {
-        return userDao.readAll();
+        return usersDao.readAll();
     }
 
     public User getByUserName(String login) throws IOException {
@@ -30,35 +35,35 @@ public class UsersService {
                 .orElse(null);
     }
 
-    public User getById(String id) throws IOException {
-        return readAll()
-                .stream()
-                .filter(u -> u.getId() != null && u.getId().equals(id))
-                .findFirst()
-                .orElse(null);
-    }
-
-    public void addUser(User u) {
-        Map<String, User> us = new HashMap<>();
-        us.put(u.getUsername(), u);
-    }
-
-    public Optional<User> authenticate(String username, String password) {
-        Map<String, User> users = new HashMap<>();
-        User user = users.get(username);
-        if (user != null && user.getPassword().equals(password)) {
-            return Optional.of(user);
-        } else {
-            return Optional.empty();
+    public User authenticate(String username, String password) throws IOException {
+        User user = getByUserName(username);
+        if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+            return user;
         }
+        return null;
     }
 
-    public boolean userExists(String username) {
-        try {
-            return readAll().stream().anyMatch(user -> user.getUsername().equals(username));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+    public User getUserByUsername(String username) throws IOException {
+        return usersDao.getUserByUsername(username);
+    }
+
+    public User updateUser(User updatedUser) throws IOException {
+        return usersDao.updateUser(updatedUser);
+    }
+
+    public User updatePassword(String username, String newPassword) throws IOException {
+        return usersDao.updatePassword(username, newPassword);
+    }
+
+    public Optional<Booking> findUserBookingById(User user, String bookingId) {
+        return usersDao.findUserBookingById(user, bookingId);
+    }
+
+    public boolean deleteBooking(User user, String bookingId) throws IOException {
+        return usersDao.deleteBooking(user, bookingId);
+    }
+
+    public void addBooking(User user, Booking booking) {
+        user.getBookings().add(booking);
     }
 }

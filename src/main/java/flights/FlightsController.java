@@ -1,19 +1,20 @@
 package flights;
 
-import utils.exceptions.FlightNotFoundException;
-import utils.exceptions.PassengerOverflowException;
+import utils.exceptions.*;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.time.ZonedDateTime;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class FlightsController {
     private static final int minSeats = 50;
     private static final int maxSeats = 500;
-    private static final int monthsCap = 12;
+    private static final int daysCap = 1;
     private final FlightsService service;
 
     public FlightsController(FlightsService service) {
@@ -23,13 +24,14 @@ public class FlightsController {
     public Flight generateRandom() throws IOException {
         City origin = City.getRandom();
         City destination = City.getRandom(origin);
-        long departureTime = ThreadLocalRandom.current().nextLong(Instant.now().toEpochMilli(), ZonedDateTime.now().plusMonths(monthsCap).toInstant().toEpochMilli());
+        long departureTime = ThreadLocalRandom.current().nextLong(Instant.now().toEpochMilli(), ZonedDateTime.now().plusDays(daysCap).toInstant().toEpochMilli());
+        long arrivalTime = generateRandomArrivalTime(departureTime);
         int maxPassengers = ThreadLocalRandom.current().nextInt(minSeats, maxSeats);
         int passengers = ThreadLocalRandom.current().nextInt(0, maxPassengers);
         double initialCost = ThreadLocalRandom.current().nextDouble();
         Airline airline = Airline.getRandom();
 
-        Flight f = create(origin, destination, airline, initialCost, departureTime, maxPassengers);
+        Flight f = create(origin, destination, airline, initialCost, departureTime, arrivalTime, maxPassengers);
         try {
             f.incrementPassengers(passengers);
         } catch (PassengerOverflowException e) {
@@ -48,12 +50,28 @@ public class FlightsController {
         return fs;
     }
 
-    public List<Flight> getAllDepartingIn(int hours) throws IOException {
-        return service.getAll().stream().filter(f -> f.getHoursBeforeDeparting() <= hours).toList();
+    public long generateRandomArrivalTime(long departureTime) {
+        long randomHours = ThreadLocalRandom.current().nextLong(6, 13);
+        return departureTime + randomHours * 3600 * 1000;
     }
 
-    public Flight create(City origin, City destination, Airline airline, double ticketCost, long departureTime, int maxPassengers) throws IOException {
-        return service.create(origin, destination, airline, ticketCost, departureTime, maxPassengers);
+    public List<Flight[]> findConnectingFlights(List<Flight> flights, City origin, City destination) {
+        return flights.stream()
+                .filter(outboundFlight -> outboundFlight.getOrigin().equals(origin) && !outboundFlight.getDestination().equals(destination))
+                .flatMap(outboundFlight ->
+                        flights.stream()
+                                .filter(inboundFlight ->
+                                        !inboundFlight.getOrigin().equals(origin)
+                                                && outboundFlight.getDestination().equals(inboundFlight.getOrigin())
+                                                && inboundFlight.getDestination().equals(destination)
+                                                && inboundFlight.getDepartureTime() - outboundFlight.getArrivalTime() > 1 * 3600 * 1000
+                                                && inboundFlight.getDepartureTime() - outboundFlight.getArrivalTime() <= 12 * 3600 * 1000)
+                                .map(inboundFlight -> new Flight[]{outboundFlight, inboundFlight}))
+                .collect(Collectors.toList());
+    }
+
+    public Flight create(City origin, City destination, Airline airline, double ticketCost, long departureTime, long arrivalTime, int maxPassengers) throws IOException {
+        return service.create(origin, destination, airline, ticketCost, departureTime, arrivalTime, maxPassengers);
     }
 
     public void delete(Flight f) throws IOException {
@@ -84,5 +102,23 @@ public class FlightsController {
         return service.getAll().stream()
                 .filter(f -> f.getOrigin().equals(origin) && f.getDestination().equals(destination))
                 .toList();
+    }
+
+    public List<Flight> searchByDate(String dateString) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);
+            LocalDate searchDate = LocalDate.parse(dateString, formatter);
+
+            return service.getAll().stream()
+                    .filter(f -> isSameDay(f.getDepartureTime(), searchDate))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid date format. Please use 'dd/MM/yyyy'.");
+        }
+    }
+
+    private boolean isSameDay(long dateTimeMillis, LocalDate date) {
+        LocalDate flightDate = LocalDate.ofInstant(Instant.ofEpochMilli(dateTimeMillis), ZoneId.systemDefault());
+        return flightDate.equals(date);
     }
 }

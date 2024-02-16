@@ -1,13 +1,10 @@
 package flights;
 
 import logger.LoggerService;
-import workers.DataWorker;
-import workers.FileWorker;
-import workers.MapWorker;
+import workers.*;
 import utils.interfaces.DAO;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 public class FlightsDAO implements DAO<Flight> {
@@ -25,7 +22,7 @@ public class FlightsDAO implements DAO<Flight> {
     public Optional<Flight> read(String id) throws IOException {
         List<Flight> fs = worker.readAll();
         LoggerService.info("Trying to read flight with id: " + id);
-        return fs.stream().filter(f -> id.trim().toLowerCase().equals(f.getId().toLowerCase().trim())).findFirst();
+        return fs.stream().filter(f -> id.equals(f.getId())).findFirst();
     }
 
     public void save(Flight b) throws IOException {

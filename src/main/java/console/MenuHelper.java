@@ -18,14 +18,14 @@ public class MenuHelper {
     public static final Attribute redAttribute = new Attribute().withColor(Ansi.ColorFont.RED);
     public static final Attribute greenAttribute = new Attribute().withColor(Ansi.ColorFont.GREEN);
     public static final Attribute greenUnderlineAttribute = new Attribute().underline().withColor(Ansi.ColorFont.GREEN);
-    private final String FRAME_HORIZONTAL = "══";
-    private final String FRAME_VERTICAL = "║";
-    private final String FRAME_TOP_LEFT = "╔";
-    private final String FRAME_TOP_RIGHT = "╗";
-    private final String FRAME_BOTTOM_LEFT = "╚";
-    private final String FRAME_BOTTOM_RIGHT = "╝";
-    private final String FRAME_VERTICAL_RIGHT = "╠";
-    private final String FRAME_VERTICAL_LEFT = "╣";
+    private static final String FRAME_HORIZONTAL = "══";
+    private static final String FRAME_VERTICAL = "║";
+    private static final String FRAME_TOP_LEFT = "╔";
+    private static final String FRAME_TOP_RIGHT = "╗";
+    private static final String FRAME_BOTTOM_LEFT = "╚";
+    private static final String FRAME_BOTTOM_RIGHT = "╝";
+    private static final String FRAME_VERTICAL_RIGHT = "╠";
+    private static final String FRAME_VERTICAL_LEFT = "╣";
     private static final String CAPITAL_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String SMALL_LETTERS = "abcdefghijklmnopqrstuvwxyz";
     private static final String NUMBERS = "0123456789";
@@ -50,14 +50,22 @@ public class MenuHelper {
         end();
     }
 
-    public void head() {
+    public static void searchBoard() {
+        head();
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  1. Search by origin city and destination city ", cyanAttribute) + centerText("", 8) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  2. Search by date ", cyanAttribute) + centerText("", 36) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  3. Return to the main menu", cyanAttribute) + centerText("", 28) + colorize(FRAME_VERTICAL, yellowAttribute));
+        end();
+    }
+
+    public static void head() {
         System.out.println(colorize(FRAME_TOP_LEFT, yellowAttribute) + repeatString(colorize(FRAME_HORIZONTAL, yellowAttribute), 28) + colorize(FRAME_TOP_RIGHT, yellowAttribute));
         System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  FLIGHT RESERVATION SYSTEM                             ", blueBoldAttribute) + colorize(FRAME_VERTICAL, yellowAttribute));
         System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  Please choose one of the options below to continue.   ", blueBoldAttribute) + colorize(FRAME_VERTICAL, yellowAttribute));
         System.out.println(colorize(FRAME_VERTICAL_RIGHT, yellowAttribute) + repeatString(colorize(FRAME_HORIZONTAL, yellowAttribute), 28) + colorize(FRAME_VERTICAL_LEFT, yellowAttribute));
     }
 
-    public void end() {
+    public static void end() {
         System.out.println(colorize(FRAME_BOTTOM_LEFT, yellowAttribute) + repeatString(colorize(FRAME_HORIZONTAL, yellowAttribute), 28) + colorize(FRAME_BOTTOM_RIGHT, yellowAttribute));
     }
 
@@ -65,12 +73,12 @@ public class MenuHelper {
         return attribute.escapeSequence() + text + Ansi.RESET;
     }
 
-    public String centerText(String text, int width) {
+    public static String centerText(String text, int width) {
         int padding = (width - text.length()) / 2;
         return repeatString(" ", padding) + text + repeatString(" ", padding);
     }
 
-    public String repeatString(String str, int count) {
+    public static String repeatString(String str, int count) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < count; i++) {
             sb.append(str);
@@ -84,19 +92,19 @@ public class MenuHelper {
                 String input = promptString(message);
                 validateName(input);
                 return formatName(input);
-            } catch (InvalidNameException e) {
+            } catch (InvalidInputException e) {
                 System.out.println(colorize("Error: " + e.getMessage(), redAttribute));
             }
         }
     }
 
-    public void validateName(String name) throws InvalidNameException {
+    public void validateName(String name) throws InvalidInputException {
         if (name.matches(".*\\d.*")) {
-            throw new InvalidNameException(colorize("Name cannot contain digits.", redAttribute));
+            throw new InvalidInputException(colorize("Name cannot contain digits.", redAttribute));
         }
 
         if (!name.matches("^[a-zA-Z]+(-[a-zA-Z]+)*(\\s[a-zA-Z]+(-[a-zA-Z]+)*)*$")) {
-            throw new InvalidNameException(colorize("Name must contain only Latin letters, hyphens, and spaces.", redAttribute));
+            throw new InvalidInputException(colorize("Name must contain only Latin letters, hyphens, and spaces.", redAttribute));
         }
     }
 
@@ -163,19 +171,16 @@ public class MenuHelper {
         Random random = new Random();
         StringBuilder password = new StringBuilder();
 
-        // Ensure at least one character from each character set
         password.append(CAPITAL_LETTERS.charAt(random.nextInt(CAPITAL_LETTERS.length())));
         password.append(SMALL_LETTERS.charAt(random.nextInt(SMALL_LETTERS.length())));
         password.append(NUMBERS.charAt(random.nextInt(NUMBERS.length())));
         password.append(SYMBOLS.charAt(random.nextInt(SYMBOLS.length())));
 
-        // Generate remaining characters randomly
         for (int i = 4; i < 8; i++) {
             String charSet = getCharacterSet(random.nextInt(3));
             password.append(charSet.charAt(random.nextInt(charSet.length())));
         }
 
-        // Shuffle the password to randomize the characters' order
         char[] passwordArray = password.toString().toCharArray();
         for (int i = 0; i < passwordArray.length; i++) {
             int randomIndex = random.nextInt(passwordArray.length);

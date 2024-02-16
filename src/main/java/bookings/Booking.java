@@ -7,12 +7,9 @@ import utils.interfaces.HasId;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class Booking implements HasId, Serializable {
     @Serial
@@ -20,15 +17,36 @@ public class Booking implements HasId, Serializable {
     private final String id;
     private final List<Passenger> passengers;
     private final Flight flight;
+    private final PassengerClass passengerClass;
 
     public static String generateId() {
         return UUID.randomUUID().toString();
+    }
+
+    public PassengerClass selectRandomPassengerClass() {
+        PassengerClass[] classes = PassengerClass.values();
+        Random random = new Random();
+        int randomIndex = random.nextInt(classes.length);
+        return classes[randomIndex];
     }
 
     public Booking(Flight flight, List<Passenger> passengers) {
         this.id = generateId();
         this.passengers = passengers;
         this.flight = flight;
+        this.passengerClass = selectRandomPassengerClass();
+    }
+
+    public Flight getFlight() {
+        return flight;
+    }
+
+    public List<Passenger> getPassengers() {
+        return passengers;
+    }
+
+    public PassengerClass getPassengerClass() {
+        return passengerClass;
     }
 
     @Override
@@ -41,26 +59,37 @@ public class Booking implements HasId, Serializable {
         return Objects.hash(id, passengers, flight);
     }
 
+    private String formatDateTime(long time) {
+        Instant instant = Instant.ofEpochMilli(time);
+        LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+        return dateTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+    }
+
     public String prettyFormat() {
-        LocalDateTime dateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(this.flight.getDepartureTime()), ZoneId.systemDefault());
+        StringBuilder resultBuilder = new StringBuilder();
 
-        String paddedId = padString(getId(), 5);
-        String paddedPassengers = padString(String.valueOf(passengers.size()), 5);
-        String paddedAirline = padString(this.flight.getAirline(), 20);
-        String paddedOrigin = padString(String.valueOf(this.flight.getOrigin()), 12);
-        String paddedDestination = padString(String.valueOf(this.flight.getDestination()), 12);
-        String paddedDateTime = padString(String.valueOf(dateTime), 20);
+        for (Passenger passenger : passengers) {
+            String bookingId = padString(getId(), getId().length());
+            String paddedPassengerName = padString(passenger.getName() + " " + passenger.getSurname(), 22);
+            String paddedPassengerClass = padString(getPassengerClass().toString(), 20);
+            String paddedPassengerCost = padString(String.valueOf(this.flight.getTicketCost()), 5);
+            String paddedFlightId = padString(this.flight.getId(), 36);
+            String paddedAirline = padString(String.valueOf(this.flight.getAirline()), 18);
+            String paddedOrigin = padString(String.valueOf(this.flight.getOrigin()), 12);
+            String paddedDestination = padString(String.valueOf(this.flight.getDestination()), 12);
+            String paddedDateTimeDeparture = padString(formatDateTime(this.flight.getDepartureTime()), 18);
+            String paddedDateTimeArrival = padString(formatDateTime(this.flight.getArrivalTime()), 18);
 
-        return MenuHelper.colorize(
-                "| " + paddedId + " | " + paddedPassengers + " | " + paddedAirline + " | " + paddedOrigin + " | " +
-                        paddedDestination + " | " + paddedDateTime + " | ",
-                MenuHelper.whiteBoldBackAttribute
-        );
+            String formattedInfo = "| " + bookingId + " | " + paddedPassengerName + " | " + paddedPassengerClass + " | " + paddedPassengerCost + " | " + paddedFlightId + " | " + paddedAirline + " | " + paddedOrigin + " | " + paddedDestination + " | " + paddedDateTimeDeparture + " | " + paddedDateTimeArrival + " | ";
+            resultBuilder.append(MenuHelper.colorize(formattedInfo, MenuHelper.whiteBoldBackAttribute)).append("\n");
+        }
+
+        return resultBuilder.toString();
     }
 
     private String padString(String str, int length) {
         if (str.length() >= length) {
-            return str.substring(0, length - 1);
+            return str.substring(0, length);
         } else {
             StringBuilder sb = new StringBuilder(str);
             while (sb.length() < length) {
@@ -69,7 +98,7 @@ public class Booking implements HasId, Serializable {
             return sb.toString();
         }
     }
-  
+
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;
@@ -81,13 +110,5 @@ public class Booking implements HasId, Serializable {
     @Override
     public String toString() {
         return "Booking{id: " + this.id + "}";
-    }
-
-    public Flight getFlight() {
-        return flight;
-    }
-
-    public List<Passenger> getPassengers() {
-        return passengers;
     }
 }

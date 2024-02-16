@@ -1,10 +1,10 @@
 package console;
 
-import utils.exceptions.FlightNotFoundException;
+import utils.exceptions.*;
 
 import java.io.IOException;
 
 @FunctionalInterface
 public interface Operation {
-    void operation() throws IOException;
+    void operation() throws IOException, UserNotFoundException, ExitSessionException;
 }

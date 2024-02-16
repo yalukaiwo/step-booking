@@ -1,7 +1,6 @@
 package console.colored_console;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 public class Attribute {
     private final Ansi.Style style;

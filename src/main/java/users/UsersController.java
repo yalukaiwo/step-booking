@@ -1,7 +1,6 @@
 package users;
 
 import bookings.Booking;
-import utils.exceptions.UserNotFoundException;
 
 import java.io.IOException;
 import java.util.*;

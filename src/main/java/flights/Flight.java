@@ -71,7 +71,7 @@ public class Flight implements HasId, Serializable {
         String paddedDestination = padString(String.valueOf(destination), 12);
         String paddedDateTimeDeparture = padString(formatDateTime(departureTime), 18);
         String paddedDateTimeArrival = padString(formatDateTime(arrivalTime), 18);
-        String paddedSeats = padString(String.valueOf(maxPassengers), 5);
+        String paddedSeats = padString(String.valueOf(getFreeSeats()), 5);
 
         return MenuHelper.colorize("| " + paddedId + " | " + paddedAirline + " | " + paddedOrigin + " | " + paddedDestination + " | " + paddedDateTimeDeparture + " | " + paddedDateTimeArrival + " | " + paddedSeats + " |", MenuHelper.whiteBoldBackAttribute);
     }

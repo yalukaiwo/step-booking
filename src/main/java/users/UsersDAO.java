@@ -32,11 +32,6 @@ public class UsersDAO implements DAO<User> {
         }
     }
 
-    // FOR TESTING PURPOSES
-    public UsersDAO(HashMap<String, User> us) {
-        this.worker = new MapWorker<>(us);
-    }
-
     public void save(User u) throws IOException {
         ArrayList<User> us = new ArrayList<>(worker.readAll());
         us.remove(u);

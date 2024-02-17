@@ -1,6 +1,5 @@
 import bookings.Booking;
 import org.junit.jupiter.api.*;
-import passenger.Passenger;
 import users.*;
 
 import java.io.*;

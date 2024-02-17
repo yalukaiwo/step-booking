@@ -99,12 +99,13 @@ public class FlightsController {
                 .toList();
     }
 
-    public List<Flight> searchByDate(String dateString) {
+
+    public List<Flight> searchByDate(List <Flight> flights, String dateString) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);
             LocalDate searchDate = LocalDate.parse(dateString, formatter);
 
-            return service.getAll().stream()
+            return flights.stream()
                     .filter(f -> isSameDay(f.getDepartureTime(), searchDate))
                     .collect(Collectors.toList());
         } catch (Exception e) {

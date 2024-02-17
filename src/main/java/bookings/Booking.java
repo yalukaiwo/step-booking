@@ -23,6 +23,13 @@ public class Booking implements HasId, Serializable {
         return UUID.randomUUID().toString();
     }
 
+    public PassengerClass selectRandomPassengerClass() {
+        PassengerClass[] classes = PassengerClass.values();
+        Random random = new Random();
+        int randomIndex = random.nextInt(classes.length);
+        return classes[randomIndex];
+    }
+
     public Booking(Flight flight, List<Passenger> passengers) {
         this.id = generateId();
         this.passengers = passengers;

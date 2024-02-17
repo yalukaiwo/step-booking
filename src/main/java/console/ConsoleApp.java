@@ -8,6 +8,8 @@ import users.*;
 import utils.exceptions.*;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ConsoleApp {
@@ -31,7 +33,7 @@ public class ConsoleApp {
                 new OperationApp("Search and Book Flights", this::searchAndBookFlights),
                 new OperationApp("Show User Bookings", this::showUserBookings),
                 new OperationApp("Cancel Booking", this::cancelBooking),
-                new OperationApp("Logout", this::exit)
+                new OperationApp("Logout", this::logout)
         };
     }
 
@@ -104,12 +106,17 @@ public class ConsoleApp {
         String username = scanner.nextLine().trim().toLowerCase();
         username = Character.toUpperCase(username.charAt(0)) + username.substring(1);
 
-        this.currentUser = usersController.getUserByUserName(username);
+        this.currentUser = usersController.getUserByUsername(username);
 
         if (this.currentUser == null) {
-            System.out.println(MenuHelper.colorize("This user doesn't exist. Please sign up.", MenuHelper.redAttribute) + Ansi.RESET);
-            this.currentUser = signUpAfterFailedLogin();
-            return currentUser;
+            System.out.print(MenuHelper.colorize("This user doesn't exist or you enter the wrong username. Please sign up or enter -1 to return: ", MenuHelper.redAttribute) + Ansi.RESET);
+            String choice = scanner.nextLine().trim();
+            if (choice.equals("-1")) {
+                return null;
+            } else {
+                this.currentUser = signUpAfterFailedLogin();
+                return this.currentUser;
+            }
         }
 
         System.out.print(MenuHelper.colorize("Enter your password: ", MenuHelper.blueBoldBackAttribute));
@@ -243,9 +250,15 @@ public class ConsoleApp {
         while (globalSessionActive) {
             try {
                 menuDisplayHelper.userBoard();
-                System.out.print(MenuHelper.colorize(">>> Enter your choice: ", MenuHelper.magentaAttribute) + Ansi.RESET);
-                int choice = scanner.nextInt();
-                scanner.nextLine();
+                System.out.print(MenuHelper.colorize(">>> Enter your choice: ", MenuHelper.magentaAttribute));
+                String input = scanner.nextLine();
+
+                if (input.isEmpty()) {
+                    throw new InputMismatchException("Invalid input. Please enter a valid integer.");
+                }
+
+                int choice = Integer.parseInt(input);
+
                 switch (choice) {
                     case 1:
                         viewTimetable();
@@ -264,13 +277,15 @@ public class ConsoleApp {
                         break;
                     case 6:
                         globalSessionActive = false;
-                        exit();
+                        logout();
+                        return;
                     default:
                         System.out.println(MenuHelper.colorize("Invalid choice. Please try again.", MenuHelper.redAttribute) + Ansi.RESET);
                 }
+            } catch (NumberFormatException e) {
+                System.out.println(MenuHelper.colorize("Invalid input. Please enter a valid integer.", MenuHelper.redAttribute) + Ansi.RESET);
             } catch (InputMismatchException e) {
                 System.out.println(MenuHelper.colorize("Invalid input. Please enter a valid integer.", MenuHelper.redAttribute) + Ansi.RESET);
-                scanner.nextLine();
             } catch (UserNotFoundException e) {
                 System.out.println(MenuHelper.colorize("User not found!", MenuHelper.redAttribute));
             } catch (ExitSessionException e) {
@@ -323,64 +338,6 @@ public class ConsoleApp {
         }
     }
 
-    private void searchAndBookFlights() throws IOException, ExitSessionException {
-        while (globalSessionActive) {
-            try {
-                MenuHelper.searchBoard();
-                System.out.print(MenuHelper.colorize(">>> Enter your choice: ", MenuHelper.magentaAttribute) + Ansi.RESET);
-                int choice = scanner.nextInt();
-                scanner.nextLine();
-                switch (choice) {
-                    case 1:
-                        bookFlightsByCities();
-                        break;
-                    case 2:
-                        bookFlightsByDate();
-                        break;
-                    case 3:
-                        startBooking();
-                        return;
-                    default:
-                        System.out.println(MenuHelper.colorize("Invalid choice. Please try again.", MenuHelper.redAttribute) + Ansi.RESET);
-                }
-            } catch (InputMismatchException e) {
-                System.out.println(MenuHelper.colorize("Invalid input. Please enter a valid integer.", MenuHelper.redAttribute) + Ansi.RESET);
-                scanner.nextLine();
-            } catch (FlightNotFoundException e) {
-                System.out.println(MenuHelper.colorize("Flight not found!", MenuHelper.redAttribute) + Ansi.RESET);
-            } catch (BookingNotFoundException e) {
-                System.out.println(MenuHelper.colorize("Booking isn't created!", MenuHelper.redAttribute) + Ansi.RESET);
-            } catch (PassengerOverflowException e) {
-                System.out.println(MenuHelper.colorize("Passenger amount exceeded!", MenuHelper.redAttribute) + Ansi.RESET);
-            } catch (UserNotFoundException e) {
-                System.out.println(MenuHelper.colorize("User not found!", MenuHelper.redAttribute) + Ansi.RESET);
-            }
-        }
-    }
-
-    private City promptCityInput(String promptMessage) throws IOException, ExitSessionException {
-        while (true) {
-            System.out.print(MenuHelper.colorize(promptMessage, MenuHelper.blueBoldAttribute) + Ansi.RESET);
-            String cityInput = scanner.nextLine().trim();
-            if (cityInput.isEmpty()) {
-                System.out.println(MenuHelper.colorize("Invalid input. City name cannot be empty.", MenuHelper.redAttribute) + Ansi.RESET);
-                continue;
-            }
-            if ("-1".equals(cityInput)) {
-                searchAndBookFlights();
-                break;
-            }
-            cityInput = cityInput.toUpperCase();
-            try {
-                City city = City.valueOf(cityInput);
-                return city;
-            } catch (IllegalArgumentException e) {
-                System.out.println(MenuHelper.colorize("The city '" + cityInput + "' does not exist.", MenuHelper.redAttribute) + Ansi.RESET);
-            }
-        }
-        return null;
-    }
-
     private String promptFlightSelection() throws IOException {
         while (true) {
             try {
@@ -406,26 +363,30 @@ public class ConsoleApp {
 
     private int promptPassengerCount() {
         while (true) {
-            System.out.print(MenuHelper.colorize("\nEnter the number of passengers: ", MenuHelper.greenAttribute) + Ansi.RESET);
+            System.out.print(MenuHelper.colorize("\nEnter the number of passengers (or enter -1 to exit): ", MenuHelper.greenAttribute) + Ansi.RESET);
             try {
-                int numPassengers = scanner.nextInt();
-                scanner.nextLine();
-                if (numPassengers <= 0) {
-                    throw new InvalidInputException(MenuHelper.colorize("Invalid number of passengers. Please enter a positive integer.", MenuHelper.redAttribute) + Ansi.RESET);
+                String input = scanner.nextLine();
+
+                if ("-1".equals(input)) {
+                    return -1;
                 }
+
+                int numPassengers = Integer.parseInt(input);
+
+                if (numPassengers <= 0) {
+                    System.out.println(MenuHelper.colorize("Invalid number of passengers. Please enter a positive integer.", MenuHelper.redAttribute) + Ansi.RESET);
+                    continue;
+                }
+
                 return numPassengers;
-            } catch (InputMismatchException e) {
-                scanner.nextLine();
-                System.out.println(MenuHelper.colorize("Invalid input for number of passengers. Please enter a valid integer.", MenuHelper.redAttribute) + Ansi.RESET);
+            } catch (NumberFormatException e) {
+                System.out.println(MenuHelper.colorize("Invalid input. Please enter a valid integer.", MenuHelper.redAttribute) + Ansi.RESET);
             }
         }
     }
 
-    private void bookSelectedFlight(Flight bookFlight, int numPassengers) throws
-            BookingNotFoundException, IOException, FlightNotFoundException {
-        if (numPassengers <= 0) {
-            throw new InvalidInputException(MenuHelper.colorize("Invalid number of passengers. Please enter a positive integer.", MenuHelper.redAttribute) + Ansi.RESET);
-        }
+    private void bookSelectFlight(Flight bookFlight, int numPassengers) throws
+            BookingNotFoundException, IOException {
         List<Passenger> passengers = promptPassengerDetails(numPassengers);
         bookSelectedFlight(bookFlight, passengers);
     }
@@ -434,6 +395,7 @@ public class ConsoleApp {
         Optional<Booking> bookingResult = bookingsController.create(bookFlight, passengers);
         Booking booking = bookingResult.orElseThrow(BookingNotFoundException::new);
         usersController.addBooking(this.currentUser, booking);
+        this.currentUser = usersController.updateUser(currentUser);
         System.out.println(MenuHelper.colorize("Flight booked successfully!", MenuHelper.greenUnderlineAttribute) + Ansi.RESET);
     }
 
@@ -472,23 +434,109 @@ public class ConsoleApp {
         return passengers;
     }
 
-    private void bookFlightsByCities() throws IOException, FlightNotFoundException, PassengerOverflowException, BookingNotFoundException, UserNotFoundException, ExitSessionException {
-        try {
-            City origin = promptCityInput("Enter origin city (or enter -1 to exit), the names of a few words enter by '_': ");
-            City destination = promptCityInput("Enter destination city (or enter -1 to exit), the names of a few words enter by '_': ");
+    private void bookFlightWithPassengers() throws IOException, FlightNotFoundException, BookingNotFoundException {
+        while (true) {
+            Flight bookFlight = bookFlight();
+            if (bookFlight == null) {
+                return;
+            }
+            writeFlight(bookFlight);
 
-            if (origin.equals(destination)) {
-                throw new SameCityException(MenuHelper.colorize("Origin and destination cities cannot be the same.", MenuHelper.redAttribute) + Ansi.RESET);
+            int numPassengers = promptPassengerCount();
+            if (numPassengers == -1) {
+                return;
+            }
+            if (numPassengers > bookFlight.getFreeSeats()) {
+                System.out.println(MenuHelper.colorize("Passenger amount exceeded!", MenuHelper.redAttribute) + Ansi.RESET);
+                continue;
+            }
+
+            bookSelectFlight(bookFlight, numPassengers);
+            break;
+        }
+    }
+
+    private City promptCityInput(String message) {
+        while (true) {
+            System.out.print(message + Ansi.RESET);
+            String cityInput = scanner.nextLine().trim();
+            if (cityInput.isEmpty()) {
+                System.out.println(MenuHelper.colorize("Invalid input. City name cannot be empty.", MenuHelper.redAttribute) + Ansi.RESET);
+                continue;
+            }
+            if ("-1".equals(cityInput)) {
+                return null;
+            }
+            cityInput = cityInput.toUpperCase();
+            try {
+                return City.valueOf(cityInput);
+            } catch (IllegalArgumentException e) {
+                System.out.println(MenuHelper.colorize("The city '" + cityInput + "' does not exist.", MenuHelper.redAttribute) + Ansi.RESET);
+            }
+        }
+    }
+
+    private void searchAndBookFlights() throws IOException, UserNotFoundException, ExitSessionException {
+        try {
+            City origin = promptCityInput(MenuHelper.colorize("Enter origin city (or enter -1 to exit), the names of a few words enter by '_': ", MenuHelper.blueBoldAttribute));
+            if (origin == null) {
+                return;
+            }
+
+            City destination = null;
+            while (destination == null) {
+                destination = promptCityInput(MenuHelper.colorize("Enter destination city (or enter -1 to exit), the names of a few words enter by '_': ", MenuHelper.blueBoldAttribute));
+                if (destination == null) {
+                    return;
+                }
+
+                if (origin.equals(destination)) {
+                    System.out.println(MenuHelper.colorize("Origin and destination cities cannot be the same.", MenuHelper.redAttribute) + Ansi.RESET);
+                    destination = null;
+                }
+            }
+
+            String dateString;
+            while (true) {
+                try {
+                    System.out.print(MenuHelper.colorize("Enter the date (dd/MM/yyyy) or enter -1 to exit: ", MenuHelper.magentaAttribute) + Ansi.RESET);
+                    dateString = scanner.nextLine().trim();
+                    if (dateString.isEmpty()) {
+                        System.out.println(MenuHelper.colorize("Invalid input. Date name cannot be empty.", MenuHelper.redAttribute) + Ansi.RESET);
+                        continue;
+                    }
+
+                    if ("-1".equals(dateString)) {
+                        return;
+                    }
+
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                    dateFormat.setLenient(false);
+                    dateFormat.parse(dateString);
+                    break;
+                } catch (ParseException e) {
+                    System.out.println(MenuHelper.colorize("Invalid date format. Please try again.", MenuHelper.redAttribute) + Ansi.RESET);
+                }
             }
 
             List<Flight> searchResults = flightsController.search(origin, destination);
-            if (searchResults.isEmpty()) {
-                throw new FlightNotFoundException();
+            List<Flight> searchDateResults = flightsController.searchByDate(searchResults, dateString);
+            if (searchDateResults.isEmpty()) {
+                System.out.println(MenuHelper.colorize("No flights available for the specified date.", MenuHelper.redAttribute) + Ansi.RESET);
             }
-            printSearchResults(searchResults);
 
             List<Flight> flights = flightsController.getAll();
-            List<Flight[]> connectingFlights = flightsController.findConnectingFlights(flights, origin, destination);
+            List<Flight> flightsDateResults = flightsController.searchByDate(flights, dateString);
+            List<Flight[]> connectingFlights = flightsController.findConnectingFlights(flightsDateResults, origin, destination);
+            if (connectingFlights.isEmpty()) {
+                System.out.println(MenuHelper.colorize("No connecting flights found.", MenuHelper.yellowAttribute) + Ansi.RESET);
+            }
+            if (searchDateResults.isEmpty() && connectingFlights.isEmpty()) {
+                return;
+            }
+
+            printSearchResults(searchDateResults);
+
             Map<String, Flight[]> connectingFlightsMap = null;
             if (!connectingFlights.isEmpty()) {
                 connectingFlightsMap = new HashMap<>();
@@ -502,25 +550,10 @@ public class ConsoleApp {
                     System.out.println(MenuHelper.colorize("Inbound flight: ", MenuHelper.greenAttribute) + Ansi.RESET);
                     System.out.println(connectingFlight[1].prettyFormat());
                 }
-            } else {
-                System.out.println(MenuHelper.colorize("No connecting flights found.", MenuHelper.yellowAttribute) + Ansi.RESET);
             }
 
-            while (true) {
-                Flight bookFlight = bookFlight();
-                if (bookFlight == null) {
-                    break;
-                }
-                writeFlight(bookFlight);
-
-                int numPassengers = promptPassengerCount();
-                if (numPassengers > bookFlight.getFreeSeats()) {
-                    System.out.println(MenuHelper.colorize("Passenger amount exceeded!", MenuHelper.redAttribute) + Ansi.RESET);
-                    continue;
-                }
-
-                bookSelectedFlight(bookFlight, numPassengers);
-                break;
+            if (!searchDateResults.isEmpty()) {
+                bookFlightWithPassengers();
             }
 
             if (connectingFlights.isEmpty()) {
@@ -546,6 +579,10 @@ public class ConsoleApp {
                 }
 
                 int numPassengers = promptPassengerCount();
+                if (numPassengers == -1) {
+                    return;
+                }
+
                 List<Passenger> passengers = promptPassengerDetails(numPassengers);
 
                 for (Flight leg : selectedConnectingFlights) {
@@ -557,51 +594,13 @@ public class ConsoleApp {
                 bookSelectedFlight(selectedConnectingFlights[1], passengers);
                 break;
             }
-        } catch (SameCityException e) {
-            System.out.println(MenuHelper.colorize(e.getMessage(), MenuHelper.redAttribute) + Ansi.RESET);
+        } catch (FlightNotFoundException e) {
+            System.out.println(MenuHelper.colorize("Flight not found!", MenuHelper.redAttribute) + Ansi.RESET);
+        } catch (BookingNotFoundException e) {
+            System.out.println(MenuHelper.colorize("Booking isn't created!", MenuHelper.redAttribute) + Ansi.RESET);
         } catch (InputMismatchException e) {
-            throw new InvalidInputException(MenuHelper.colorize("Invalid input for number of passengers. Please enter a valid integer.", MenuHelper.redAttribute) + Ansi.RESET);
+            System.out.println(MenuHelper.colorize("Invalid input for number of passengers. Please enter a valid integer.", MenuHelper.redAttribute) + Ansi.RESET);
         }
-        this.currentUser = usersController.updateUser(currentUser);
-    }
-
-    private void bookFlightsByDate() throws IOException, UserNotFoundException, ExitSessionException {
-        while (true) {
-            try {
-                System.out.print(MenuHelper.colorize("Enter the date (dd/MM/yyyy) or enter -1 to exit: ", MenuHelper.magentaAttribute) + Ansi.RESET);
-                String dateString = scanner.nextLine().trim();
-                if ("-1".equals(dateString)) {
-                    break;
-                }
-                List<Flight> searchResults = flightsController.searchByDate(dateString);
-                if (searchResults.isEmpty()) {
-                    System.out.println(MenuHelper.colorize("No flights available for the specified date.", MenuHelper.redAttribute) + Ansi.RESET);
-                } else {
-                    printSearchResults(searchResults);
-
-                    Flight bookFlight = bookFlight();
-                    writeFlight(bookFlight);
-
-                    int numPassengers = promptPassengerCount();
-                    if (numPassengers > bookFlight.getFreeSeats()) {
-                        System.out.println(MenuHelper.colorize("Passenger amount exceeded!", MenuHelper.redAttribute) + Ansi.RESET);
-                        continue;
-                    }
-
-                    bookSelectedFlight(bookFlight, numPassengers);
-                    break;
-                }
-            } catch (IllegalArgumentException e) {
-                System.out.println(MenuHelper.colorize("Invalid date format. Please try again.", MenuHelper.redAttribute) + Ansi.RESET);
-            } catch (FlightNotFoundException e) {
-                System.out.println(MenuHelper.colorize("Flight not found!", MenuHelper.redAttribute) + Ansi.RESET);
-            } catch (BookingNotFoundException e) {
-                System.out.println(MenuHelper.colorize("Booking isn't created!", MenuHelper.redAttribute) + Ansi.RESET);
-            } catch (InputMismatchException e) {
-                throw new InvalidInputException(MenuHelper.colorize("Invalid input for number of passengers. Please enter a valid integer.", MenuHelper.redAttribute) + Ansi.RESET);
-            }
-        }
-        this.currentUser = usersController.updateUser(currentUser);
     }
 
     private void headBookings() {
@@ -635,9 +634,12 @@ public class ConsoleApp {
                     for (Booking ignored : userBookings) {
                         System.out.print(MenuHelper.colorize("Select the booking to cancel (enter the corresponding booking ID, or -1 to exit): ", MenuHelper.yellowAttribute) + Ansi.RESET);
                         String selectedBookingId = scanner.nextLine().trim();
+                        if (selectedBookingId.isEmpty()) {
+                            System.out.println(MenuHelper.colorize("Invalid input. Booking id cannot be empty.", MenuHelper.redAttribute) + Ansi.RESET);
+                            continue;
+                        }
                         if ("-1".equals(selectedBookingId)) {
-                            startBooking();
-                            break;
+                            return;
                         }
                         Optional<Booking> bookingToRemove = Optional.ofNullable(bookingsController.getById(selectedBookingId));
                         if (bookingToRemove.isPresent()) {
@@ -658,7 +660,11 @@ public class ConsoleApp {
             } catch (BookingNotFoundException e) {
                 System.out.println(MenuHelper.colorize("Booking not found!", MenuHelper.redAttribute));
             }
+            this.currentUser = usersController.updateUser(this.currentUser);
         }
-        this.currentUser = usersController.updateUser(this.currentUser);
+    }
+
+    private void logout() {
+        System.out.println(MenuHelper.colorize("Exiting session of this user.", MenuHelper.magentaAttribute) + Ansi.RESET);
     }
 }

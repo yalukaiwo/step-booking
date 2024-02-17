@@ -1,8 +1,6 @@
 package users;
 
 import bookings.Booking;
-import utils.exceptions.UserNotFoundException;
-
 import java.io.IOException;
 import java.util.*;
 
@@ -27,16 +25,8 @@ public class UsersService {
         return usersDao.readAll();
     }
 
-    public User getByUserName(String login) throws IOException {
-        return readAll()
-                .stream()
-                .filter(u -> u.getUsername() != null && u.getUsername().equals(login))
-                .findFirst()
-                .orElse(null);
-    }
-
     public User authenticate(String username, String password) throws IOException {
-        User user = getByUserName(username);
+        User user = getUserByUsername(username);
         if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
             return user;
         }

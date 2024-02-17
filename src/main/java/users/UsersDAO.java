@@ -1,13 +1,11 @@
 package users;
 
 import bookings.Booking;
-import utils.exceptions.UserNotFoundException;
 import workers.*;
 import utils.interfaces.DAO;
 import logger.LoggerService;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 public class UsersDAO implements DAO<User> {
@@ -107,13 +105,11 @@ public class UsersDAO implements DAO<User> {
     }
 
     public User getUserByUsername(String username) throws IOException {
-        List<User> userList = readAll();
-        for (User user : userList) {
-            if (user.getUsername().equals(username)) {
-                return user;
-            }
-        }
-        return null;
+        return readAll()
+                .stream()
+                .filter(u -> u.getUsername() != null && u.getUsername().equals(username))
+                .findFirst()
+                .orElse(null);
     }
 
     public Optional<Booking> findUserBookingById(User user, String bookingId) {

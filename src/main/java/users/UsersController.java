@@ -1,7 +1,6 @@
 package users;
 
 import bookings.Booking;
-import utils.exceptions.UserNotFoundException;
 
 import java.io.IOException;
 import java.util.*;
@@ -33,7 +32,7 @@ public class UsersController {
         return readAll().stream().anyMatch(user -> user.getUsername().equals(username));
     }
 
-    public User getUserByUserName(String username) throws IOException {
+    public User getUserByUsername(String username) throws IOException {
         return usersService.getUserByUsername(username);
     }
 
@@ -56,6 +55,4 @@ public class UsersController {
     public void addBooking(User user, Booking booking) {
         usersService.addBooking(user, booking);
     }
-
-
 }

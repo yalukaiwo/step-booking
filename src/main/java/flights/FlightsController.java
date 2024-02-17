@@ -25,7 +25,7 @@ public class FlightsController {
         City origin = City.getRandom();
         City destination = City.getRandom(origin);
         long departureTime = ThreadLocalRandom.current().nextLong(Instant.now().toEpochMilli(), ZonedDateTime.now().plusDays(daysCap).toInstant().toEpochMilli());
-        long arrivalTime = generateRandomArrivalTime(departureTime);
+        long arrivalTime = ThreadLocalRandom.current().nextLong(6, 13) * 3600 * 1000 + departureTime;
         int maxPassengers = ThreadLocalRandom.current().nextInt(minSeats, maxSeats);
         int passengers = ThreadLocalRandom.current().nextInt(0, maxPassengers);
         double initialCost = ThreadLocalRandom.current().nextDouble();
@@ -48,11 +48,6 @@ public class FlightsController {
         }
 
         return fs;
-    }
-
-    public long generateRandomArrivalTime(long departureTime) {
-        long randomHours = ThreadLocalRandom.current().nextLong(6, 13);
-        return departureTime + randomHours * 3600 * 1000;
     }
 
     public List<Flight[]> findConnectingFlights(List<Flight> flights, City origin, City destination) {
@@ -104,12 +99,12 @@ public class FlightsController {
                 .toList();
     }
 
-    public List<Flight> searchByDate(String dateString) {
+    public List<Flight> searchByDate(List <Flight> flights, String dateString) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);
             LocalDate searchDate = LocalDate.parse(dateString, formatter);
 
-            return service.getAll().stream()
+            return flights.stream()
                     .filter(f -> isSameDay(f.getDepartureTime(), searchDate))
                     .collect(Collectors.toList());
         } catch (Exception e) {

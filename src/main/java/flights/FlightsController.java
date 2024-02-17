@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class FlightsController {
     private static final int minSeats = 50;
     private static final int maxSeats = 500;
-    private static final int daysCap = 30;
+    private static final int daysCap = 1;
     private final FlightsService service;
 
     public FlightsController(FlightsService service) {

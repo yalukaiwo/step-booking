@@ -384,7 +384,7 @@ public class ConsoleApp {
     private String promptFlightSelection() throws IOException {
         while (true) {
             try {
-                System.out.print(MenuHelper.colorize("\nSelect a flight (enter the corresponding number, or -1 to enter connecting flights): ", MenuHelper.cyanAttribute) + Ansi.RESET);
+                System.out.print(MenuHelper.colorize("\nSelect a flight (enter the corresponding number, or -1 to cancel): ", MenuHelper.cyanAttribute) + Ansi.RESET);
                 String selectedFlightNumber = scanner.nextLine().trim();
                 if (selectedFlightNumber.isEmpty()) {
                     System.out.println(MenuHelper.colorize("Invalid input. Flight name cannot be empty.", MenuHelper.redAttribute) + Ansi.RESET);
@@ -392,9 +392,9 @@ public class ConsoleApp {
                 }
 
                 if ("-1".equals(selectedFlightNumber)) {
-                    return "-1";
+                    return null;
                 }
-                Flight selectedFlight = flightsController.getById(selectedFlightNumber);
+                flightsController.getById(selectedFlightNumber);
                 return selectedFlightNumber;
             } catch (InputMismatchException e) {
                 System.out.print(MenuHelper.colorize("Invalid input for flight selection. Please enter a valid integer or -1 to exit: ", MenuHelper.redAttribute) + Ansi.RESET);
@@ -443,11 +443,7 @@ public class ConsoleApp {
         if (selectedFlightIndex == null) {
             return null;
         }
-        if ("-1".equals(selectedFlightIndex)) {
-            return null;
-        }
-        Flight bookedFlight = flightsController.getById(selectedFlightIndex);
-        return bookedFlight;
+        return flightsController.getById(selectedFlightIndex);
     }
 
     private void writeFlight(Flight flight) {
@@ -581,6 +577,11 @@ public class ConsoleApp {
                     printSearchResults(searchResults);
 
                     Flight bookFlight = bookFlight();
+
+                    if (bookFlight == null) {
+                        break;
+                    }
+
                     writeFlight(bookFlight);
 
                     int numPassengers = promptPassengerCount();

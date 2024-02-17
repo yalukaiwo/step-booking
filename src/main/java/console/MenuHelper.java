@@ -49,7 +49,6 @@ public class MenuHelper {
         System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  3. Exit ", cyanAttribute) + centerText("", 47) + colorize(FRAME_VERTICAL, yellowAttribute));
         end();
     }
-
     public static void head() {
         System.out.println(colorize(FRAME_TOP_LEFT, yellowAttribute) + repeatString(colorize(FRAME_HORIZONTAL, yellowAttribute), 28) + colorize(FRAME_TOP_RIGHT, yellowAttribute));
         System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  FLIGHT RESERVATION SYSTEM                             ", blueBoldAttribute) + colorize(FRAME_VERTICAL, yellowAttribute));

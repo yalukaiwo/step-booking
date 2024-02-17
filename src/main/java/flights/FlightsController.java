@@ -99,6 +99,7 @@ public class FlightsController {
                 .toList();
     }
 
+
     public List<Flight> searchByDate(List <Flight> flights, String dateString) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);

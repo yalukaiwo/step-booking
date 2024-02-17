@@ -32,7 +32,7 @@ public class UsersService {
         }
         return null;
     }
-
+  
     public User getUserByUsername(String username) throws IOException {
         return usersDao.getUserByUsername(username);
     }

@@ -601,6 +601,12 @@ public class ConsoleApp {
         } catch (InputMismatchException e) {
             System.out.println(MenuHelper.colorize("Invalid input for number of passengers. Please enter a valid integer.", MenuHelper.redAttribute) + Ansi.RESET);
         }
+        this.currentUser = usersController.updateUser(currentUser);
+    }
+
+    private void headBookings() {
+        System.out.println(MenuHelper.colorize("=====================================================================================================     YOUR BOOKINGS     ========================================================================================================", MenuHelper.greenAttribute) + Ansi.RESET);
+        headSearchBookings();
     }
 
     private void headBookings() {
@@ -662,6 +668,7 @@ public class ConsoleApp {
             }
             this.currentUser = usersController.updateUser(this.currentUser);
         }
+        this.currentUser = usersController.updateUser(this.currentUser);
     }
 
     private void logout() {

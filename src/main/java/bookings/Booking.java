@@ -34,7 +34,8 @@ public class Booking implements HasId, Serializable {
         this.id = generateId();
         this.passengers = passengers;
         this.flight = flight;
-        this.passengerClass = selectRandomPassengerClass();
+        // passenger class is randomized upon booking creation because i am too lazy to actually implement that :)
+        this.passengerClass = PassengerClass.getRandom();
     }
 
     public Flight getFlight() {

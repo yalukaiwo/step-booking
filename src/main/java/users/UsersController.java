@@ -55,4 +55,14 @@ public class UsersController {
     public void addBooking(User user, Booking booking) {
         usersService.addBooking(user, booking);
     }
+
+    public boolean deleteBooking(User user, String bookingId) throws IOException {
+        return usersService.deleteBooking(user, bookingId);
+    }
+
+    public void addBooking(User user, Booking booking) {
+        usersService.addBooking(user, booking);
+    }
+
+
 }

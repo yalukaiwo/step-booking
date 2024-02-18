@@ -16,11 +16,6 @@ public class BookingsDAO implements DAO<Booking> {
         this.worker = new FileWorker<>(f);
     }
 
-    // FOR TESTING PURPOSES
-    public BookingsDAO(HashMap<String, Booking> bs) {
-        this.worker = new MapWorker<>(bs);
-    }
-
     public Optional<Booking> read(String id) throws IOException {
         List<Booking> bs = worker.readAll();
         LoggerService.info("Trying to read booking with id: " + id);

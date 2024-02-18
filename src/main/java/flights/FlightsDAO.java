@@ -14,11 +14,6 @@ public class FlightsDAO implements DAO<Flight> {
         this.worker = new FileWorker<>(f);
     }
 
-    // FOR TESTING PURPOSES
-    public FlightsDAO(HashMap<String, Flight> bs) {
-        this.worker = new MapWorker<>(bs);
-    }
-
     public Optional<Flight> read(String id) throws IOException {
         List<Flight> fs = worker.readAll();
         LoggerService.info("Trying to read flight with id: " + id);

@@ -35,7 +35,7 @@ public class MenuHelper {
         head();
         System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  1. View Timetable   ", cyanAttribute) + centerText("", 35) + colorize(FRAME_VERTICAL, yellowAttribute));
         System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  2. View Flight Details  ", cyanAttribute) + centerText("", 30) + colorize(FRAME_VERTICAL, yellowAttribute));
-        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  3. Search and Bookings  ", cyanAttribute) + centerText("", 30) + colorize(FRAME_VERTICAL, yellowAttribute));
+        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  3. Search and Book  ", cyanAttribute) + centerText("", 34) + colorize(FRAME_VERTICAL, yellowAttribute));
         System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  4. My Bookings  ", cyanAttribute) + centerText("", 38) + colorize(FRAME_VERTICAL, yellowAttribute));
         System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  5. Cancel a Booking   ", cyanAttribute) + centerText("", 33) + colorize(FRAME_VERTICAL, yellowAttribute));
         System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  6. End Session    ", cyanAttribute) + centerText("", 36) + colorize(FRAME_VERTICAL, yellowAttribute));
@@ -49,15 +49,6 @@ public class MenuHelper {
         System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  3. Exit ", cyanAttribute) + centerText("", 47) + colorize(FRAME_VERTICAL, yellowAttribute));
         end();
     }
-
-    public static void searchBoard() {
-        head();
-        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  1. Search by origin city and destination city ", cyanAttribute) + centerText("", 8) + colorize(FRAME_VERTICAL, yellowAttribute));
-        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  2. Search by date ", cyanAttribute) + centerText("", 36) + colorize(FRAME_VERTICAL, yellowAttribute));
-        System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  3. Return to the main menu", cyanAttribute) + centerText("", 28) + colorize(FRAME_VERTICAL, yellowAttribute));
-        end();
-    }
-
     public static void head() {
         System.out.println(colorize(FRAME_TOP_LEFT, yellowAttribute) + repeatString(colorize(FRAME_HORIZONTAL, yellowAttribute), 28) + colorize(FRAME_TOP_RIGHT, yellowAttribute));
         System.out.println(colorize(FRAME_VERTICAL, yellowAttribute) + colorize("  FLIGHT RESERVATION SYSTEM                             ", blueBoldAttribute) + colorize(FRAME_VERTICAL, yellowAttribute));

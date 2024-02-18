@@ -13,7 +13,7 @@ public class Main {
         FlightsController flightsController = new FlightsController(new FlightsService(new FlightsDAO(new File("flights.bin"))));
 
         ConsoleApp consoleApp = new ConsoleApp(usersController, bookingsController, flightsController);
-        consoleApp.generateRandomFlights(50);
+        consoleApp.generateRandomFlights(5);
         consoleApp.start();
     }
 }

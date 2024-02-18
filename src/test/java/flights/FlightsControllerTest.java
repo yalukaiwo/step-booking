@@ -105,7 +105,7 @@ public class FlightsControllerTest {
     @Test
     public void testFindConnectingFlights() throws IOException {
         Flight f = new Flight(City.AMSTERDAM, City.NEW_YORK, Airline.DELTA, 123, 100, 200, 123);
-        Flight f1 = new Flight(City.NEW_YORK, City.BEIJING, Airline.DELTA, 123, 300, 400, 123);
+        Flight f1 = new Flight(City.NEW_YORK, City.BEIJING, Airline.DELTA, 123, 3600*1001, 3600*1002, 123);
         controller.save(List.of(f, f1));
         List<Flight[]> fs = controller.findConnectingFlights(dao.readAll(), City.AMSTERDAM, City.BEIJING);
         Assertions.assertEquals(1, fs.size());

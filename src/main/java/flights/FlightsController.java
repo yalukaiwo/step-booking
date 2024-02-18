@@ -59,6 +59,7 @@ public class FlightsController {
                                         !inboundFlight.getOrigin().equals(origin)
                                                 && outboundFlight.getDestination().equals(inboundFlight.getOrigin())
                                                 && inboundFlight.getDestination().equals(destination)
+                                                && inboundFlight.getDepartureTime() - outboundFlight.getArrivalTime() > 3600 * 1000
                                                 && inboundFlight.getDepartureTime() - outboundFlight.getArrivalTime() <= 12 * 3600 * 1000)
                                 .map(inboundFlight -> new Flight[]{outboundFlight, inboundFlight}))
                 .collect(Collectors.toList());

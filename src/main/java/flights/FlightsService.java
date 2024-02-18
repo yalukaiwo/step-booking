@@ -36,8 +36,8 @@ public class FlightsService {
         return db.readAll();
     }
 
-    public void save(Flight b) throws IOException {
-        db.save(b);
+    public void save(Flight f) throws IOException {
+        db.save(f);
     }
 
     public void save(List<Flight> fs) throws IOException {

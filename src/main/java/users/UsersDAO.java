@@ -32,11 +32,6 @@ public class UsersDAO implements DAO<User> {
         }
     }
 
-    // FOR TESTING PURPOSES
-    public UsersDAO(HashMap<String, User> us) {
-        this.worker = new MapWorker<>(us);
-    }
-
     public void save(User u) throws IOException {
         ArrayList<User> us = new ArrayList<>(worker.readAll());
         us.remove(u);
@@ -118,7 +113,7 @@ public class UsersDAO implements DAO<User> {
                 .findAny();
     }
 
-    public boolean deleteBooking(User user, String bookingId) throws IOException {
+    public void deleteBooking(User user, String bookingId) throws IOException {
         Optional<Booking> bookingToRemove = findUserBookingById(user, bookingId);
         if (bookingToRemove.isPresent()) {
             Booking bookingToDelete = bookingToRemove.get();
@@ -126,14 +121,11 @@ public class UsersDAO implements DAO<User> {
             if (removed) {
                 save(user);
                 LoggerService.info("Booking with ID " + bookingId + " deleted successfully for user " + user.getId());
-                return true;
             } else {
                 LoggerService.error("Failed to delete booking with ID " + bookingId + " for user " + user.getId());
-                return false;
             }
         } else {
             LoggerService.error("Booking not found with ID: " + bookingId + " for user " + user.getId());
-            return false;
         }
     }
 }

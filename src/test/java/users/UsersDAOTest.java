@@ -1,6 +1,7 @@
+package users;
+
 import bookings.Booking;
 import org.junit.jupiter.api.*;
-import users.*;
 
 import java.io.*;
 import java.util.*;
@@ -9,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class UsersDAOTest {
     private final String fileName = "test.bin";
-    private UsersDAO usersDAO = new UsersDAO(new File(fileName));
+    private final UsersDAO usersDAO = new UsersDAO(new File(fileName));
     private final InputStream originalSystemIn = System.in;
     private ByteArrayInputStream inputStream;
     private ByteArrayOutputStream outputStream;

@@ -128,14 +128,6 @@ public class Flight implements HasId, Serializable {
         return arrivalTime;
     }
 
-    public int getMaxPassengers() {
-        return maxPassengers;
-    }
-
-    public int getPassengers() {
-        return passengers;
-    }
-
     public String getAirline() {
         return airline.toString();
     }

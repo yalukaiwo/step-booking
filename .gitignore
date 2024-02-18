@@ -37,9 +37,10 @@ build/
 ### Mac OS ###
 .DS_Store
 
-### WORK FILES ###
+### DATA FILES ###
 application.log
-flights.bin
+application.log.1
 users.bin
 bookings.bin
 application.log.lck
+test.bin

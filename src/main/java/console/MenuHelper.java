@@ -70,11 +70,7 @@ public class MenuHelper {
     }
 
     public static String repeatString(String str, int count) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < count; i++) {
-            sb.append(str);
-        }
-        return sb.toString();
+        return String.valueOf(str).repeat(Math.max(0, count));
     }
 
     public String promptValidName(String message) {
@@ -103,7 +99,7 @@ public class MenuHelper {
         String[] words = name.split("[\\s-]+");
         StringBuilder formattedName = new StringBuilder();
         for (String word : words) {
-            if (formattedName.length() > 0) {
+            if (!formattedName.isEmpty()) {
                 formattedName.append(" ");
             }
             formattedName.append(word.substring(0, 1).toUpperCase())
@@ -184,15 +180,11 @@ public class MenuHelper {
     }
 
     private static String getCharacterSet(int index) {
-        switch (index) {
-            case 0:
-                return CAPITAL_LETTERS;
-            case 1:
-                return SMALL_LETTERS;
-            case 2:
-                return NUMBERS;
-            default:
-                return SYMBOLS;
-        }
+        return switch (index) {
+            case 0 -> CAPITAL_LETTERS;
+            case 1 -> SMALL_LETTERS;
+            case 2 -> NUMBERS;
+            default -> SYMBOLS;
+        };
     }
 }

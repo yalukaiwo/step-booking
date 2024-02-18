@@ -17,28 +17,19 @@ public class ConsoleApp {
     private final UsersController usersController;
     private final BookingsController bookingsController;
     private final FlightsController flightsController;
-    private final OperationApp[] operations;
     private User currentUser;
     private final MenuHelper menuDisplayHelper;
-    private boolean globalSessionActive;
+    private boolean globalSessionActive = true;
 
     public ConsoleApp(UsersController usersController, BookingsController bookingsController, FlightsController flightsController) throws IOException {
         this.usersController = usersController;
         this.bookingsController = bookingsController;
         this.flightsController = flightsController;
         this.menuDisplayHelper = new MenuHelper();
-        this.operations = new OperationApp[]{
-                new OperationApp("View Timetable", this::viewTimetable),
-                new OperationApp("View Flight Details", this::viewFlightDetails),
-                new OperationApp("Search and Book Flights", this::searchAndBookFlights),
-                new OperationApp("Show User Bookings", this::showUserBookings),
-                new OperationApp("Cancel Booking", this::cancelBooking),
-                new OperationApp("Logout", this::logout)
-        };
     }
 
     public void start() throws IOException {
-        while (globalSessionActive = true) {
+        while (globalSessionActive) {
             try {
                 menuDisplayHelper.visitorBoard();
                 System.out.print(MenuHelper.colorize(">>> Enter your choice: ", MenuHelper.magentaAttribute));
@@ -69,7 +60,6 @@ public class ConsoleApp {
                 System.out.println(MenuHelper.colorize(e.getMessage(), MenuHelper.redAttribute) + Ansi.RESET);
             } catch (ExitSessionException e) {
                 System.out.println(MenuHelper.colorize(e.getMessage(), MenuHelper.magentaAttribute) + Ansi.RESET);
-                return;
             }
         }
     }
@@ -78,7 +68,7 @@ public class ConsoleApp {
         this.currentUser = currentUser;
     }
 
-    private void authentificationHead() {
+    private void authenticationHead() {
         System.out.println(MenuHelper.colorize("Welcome to the Flight Reservation System!", MenuHelper.yellowAttribute) + Ansi.RESET);
         System.out.println(MenuHelper.colorize("-------------------------------------------", MenuHelper.greenAttribute) + Ansi.RESET);
     }
@@ -98,8 +88,8 @@ public class ConsoleApp {
         return generatedPassword;
     }
 
-    private User login() throws IOException, ExitSessionException {
-        authentificationHead();
+    private void login() throws IOException, ExitSessionException {
+        authenticationHead();
         System.out.println(MenuHelper.colorize("Please log in to continue.", MenuHelper.yellowAttribute) + Ansi.RESET);
         System.out.println();
         System.out.print(MenuHelper.colorize("Enter your username: ", MenuHelper.blueBoldBackAttribute));
@@ -112,10 +102,10 @@ public class ConsoleApp {
             System.out.print(MenuHelper.colorize("This user doesn't exist or you enter the wrong username. Please sign up or enter -1 to return: ", MenuHelper.redAttribute) + Ansi.RESET);
             String choice = scanner.nextLine().trim();
             if (choice.equals("-1")) {
-                return null;
+                return;
             } else {
                 this.currentUser = signUpAfterFailedLogin();
-                return this.currentUser;
+                return;
             }
         }
 
@@ -125,7 +115,6 @@ public class ConsoleApp {
         if (this.currentUser != null) {
             System.out.println(MenuHelper.colorize("You have successfully logged in", MenuHelper.greenAttribute) + Ansi.RESET);
             startBooking();
-            return this.currentUser;
         } else {
             System.out.println(MenuHelper.colorize("The password is wrong.", MenuHelper.redAttribute) + Ansi.RESET);
             System.out.println(MenuHelper.colorize("We propose you to generate a new passport.", MenuHelper.cyanAttribute) + Ansi.RESET);
@@ -138,7 +127,6 @@ public class ConsoleApp {
                 setCurrentUser(this.currentUser);
                 System.out.println(MenuHelper.colorize("You have successfully logged in", MenuHelper.greenAttribute) + Ansi.RESET);
                 startBooking();
-                return this.currentUser;
             } else if (choice.equals("no")) {
                 System.out.println(MenuHelper.colorize("Password must be at least 8 characters long and must consist of capital, " +
                         "small letters, numbers, and symbols.", MenuHelper.greenAttribute) + Ansi.RESET);
@@ -153,7 +141,6 @@ public class ConsoleApp {
                             setCurrentUser(this.currentUser);
                             System.out.println(MenuHelper.colorize("You have successfully logged in", MenuHelper.greenAttribute) + Ansi.RESET);
                             startBooking();
-                            return this.currentUser;
                         } else {
                             MenuHelper.validatePassword(password);
                         }
@@ -167,7 +154,6 @@ public class ConsoleApp {
                 System.out.println(MenuHelper.colorize("Invalid input. Please enter either 'yes' or 'no'.", MenuHelper.redAttribute) + Ansi.RESET);
             }
         }
-        return this.currentUser;
     }
 
     private User signUpAfterFailedLogin() throws IOException {
@@ -229,21 +215,15 @@ public class ConsoleApp {
         }
     }
 
-    private User signUp() throws IOException, ExitSessionException {
-        authentificationHead();
+    private void signUp() throws IOException, ExitSessionException {
+        authenticationHead();
         this.currentUser = signUpAfterFailedLogin();
         setCurrentUser(this.currentUser);
-        return this.currentUser;
     }
 
     private void exit() {
         System.out.println(MenuHelper.colorize("Exiting session.", MenuHelper.magentaAttribute) + Ansi.RESET);
         System.exit(0);
-    }
-
-    public void generateRandomFlights(int amount) throws IOException {
-        List<Flight> xs = flightsController.generateRandom(amount);
-        flightsController.save(xs);
     }
 
     public void startBooking() throws IOException {
@@ -276,15 +256,12 @@ public class ConsoleApp {
                         cancelBooking();
                         break;
                     case 6:
-                        globalSessionActive = false;
                         logout();
                         return;
                     default:
                         System.out.println(MenuHelper.colorize("Invalid choice. Please try again.", MenuHelper.redAttribute) + Ansi.RESET);
                 }
-            } catch (NumberFormatException e) {
-                System.out.println(MenuHelper.colorize("Invalid input. Please enter a valid integer.", MenuHelper.redAttribute) + Ansi.RESET);
-            } catch (InputMismatchException e) {
+            } catch (NumberFormatException | InputMismatchException e) {
                 System.out.println(MenuHelper.colorize("Invalid input. Please enter a valid integer.", MenuHelper.redAttribute) + Ansi.RESET);
             } catch (UserNotFoundException e) {
                 System.out.println(MenuHelper.colorize("User not found!", MenuHelper.redAttribute));
@@ -299,7 +276,7 @@ public class ConsoleApp {
         List<Flight> flights = flightsController.getAll();
         System.out.println(MenuHelper.colorize("=============================================================    TIMETABLE    =================================================================", MenuHelper.greenAttribute) + Ansi.RESET);
         headSearchFlights();
-        flights.stream().map(Flight::prettyFormat).forEach(System.out::println);
+        flights.stream().filter(f -> f.getHoursBeforeDeparting() <= 24 && f.getOrigin().equals(City.KYIV)).map(Flight::prettyFormat).forEach(System.out::println);
     }
 
     private void headSearchFlights() {
@@ -350,11 +327,10 @@ public class ConsoleApp {
                 if ("-1".equals(selectedFlightNumber)) {
                     return "-1";
                 }
-                Flight selectedFlight = flightsController.getById(selectedFlightNumber);
+                flightsController.getById(selectedFlightNumber);
                 return selectedFlightNumber;
             } catch (InputMismatchException e) {
                 System.out.print(MenuHelper.colorize("Invalid input for flight selection. Please enter a valid integer or -1 to exit: ", MenuHelper.redAttribute) + Ansi.RESET);
-                scanner.nextLine().trim();
             } catch (FlightNotFoundException e) {
                 System.out.println(MenuHelper.colorize("Flight not found!", MenuHelper.redAttribute) + Ansi.RESET);
             }
@@ -394,6 +370,7 @@ public class ConsoleApp {
     private void bookSelectedFlight(Flight bookFlight, List<Passenger> passengers) throws BookingNotFoundException, IOException {
         Optional<Booking> bookingResult = bookingsController.create(bookFlight, passengers);
         Booking booking = bookingResult.orElseThrow(BookingNotFoundException::new);
+        flightsController.save(bookFlight);
         usersController.addBooking(this.currentUser, booking);
         this.currentUser = usersController.updateUser(currentUser);
         System.out.println(MenuHelper.colorize("Flight booked successfully!", MenuHelper.greenUnderlineAttribute) + Ansi.RESET);
@@ -401,14 +378,10 @@ public class ConsoleApp {
 
     private Flight bookFlight() throws IOException, FlightNotFoundException {
         String selectedFlightIndex = promptFlightSelection();
-        if (selectedFlightIndex == null) {
-            return null;
-        }
         if ("-1".equals(selectedFlightIndex)) {
             return null;
         }
-        Flight bookedFlight = flightsController.getById(selectedFlightIndex);
-        return bookedFlight;
+        return flightsController.getById(selectedFlightIndex);
     }
 
     private void writeFlight(Flight flight) {
@@ -609,11 +582,6 @@ public class ConsoleApp {
         headSearchBookings();
     }
 
-    private void headBookings() {
-        System.out.println(MenuHelper.colorize("=====================================================================================================     YOUR BOOKINGS     ========================================================================================================", MenuHelper.greenAttribute) + Ansi.RESET);
-        headSearchBookings();
-    }
-
     private void showUserBookings() throws UserNotFoundException {
         setCurrentUser(this.currentUser);
         if (this.currentUser != null) {
@@ -649,6 +617,7 @@ public class ConsoleApp {
                         }
                         Optional<Booking> bookingToRemove = Optional.ofNullable(bookingsController.getById(selectedBookingId));
                         if (bookingToRemove.isPresent()) {
+                            flightsController.save(bookingToRemove.get().getFlight());
                             bookingsController.delete(selectedBookingId);
                             usersController.deleteBooking(this.currentUser, selectedBookingId);
                             System.out.println(MenuHelper.colorize("Booking cancelled successfully!", MenuHelper.greenAttribute) + Ansi.RESET);

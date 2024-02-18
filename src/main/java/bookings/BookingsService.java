@@ -39,8 +39,4 @@ public class BookingsService {
 
         return b.get();
     }
-
-    public List<Booking> getAll() throws IOException {
-        return db.readAll();
-    }
 }

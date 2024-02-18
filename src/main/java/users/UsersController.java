@@ -48,16 +48,8 @@ public class UsersController {
         return usersService.findUserBookingById(user, bookingId);
     }
 
-    public boolean deleteBooking(User user, String bookingId) throws IOException {
-        return usersService.deleteBooking(user, bookingId);
-    }
-
-    public void addBooking(User user, Booking booking) {
-        usersService.addBooking(user, booking);
-    }
-
-    public boolean deleteBooking(User user, String bookingId) throws IOException {
-        return usersService.deleteBooking(user, bookingId);
+    public void deleteBooking(User user, String bookingId) throws IOException {
+        usersService.deleteBooking(user, bookingId);
     }
 
     public void addBooking(User user, Booking booking) {

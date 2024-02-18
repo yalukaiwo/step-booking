@@ -49,8 +49,8 @@ public class UsersService {
         return usersDao.findUserBookingById(user, bookingId);
     }
 
-    public boolean deleteBooking(User user, String bookingId) throws IOException {
-        return usersDao.deleteBooking(user, bookingId);
+    public void deleteBooking(User user, String bookingId) throws IOException {
+        usersDao.deleteBooking(user, bookingId);
     }
 
     public void addBooking(User user, Booking booking) {

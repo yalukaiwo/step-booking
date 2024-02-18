@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class FlightsController {
     private static final int minSeats = 50;
     private static final int maxSeats = 500;
-    private static final int daysCap = 1;
+    private static final int daysCap = 3;
     private final FlightsService service;
 
     public FlightsController(FlightsService service) {
@@ -59,7 +59,6 @@ public class FlightsController {
                                         !inboundFlight.getOrigin().equals(origin)
                                                 && outboundFlight.getDestination().equals(inboundFlight.getOrigin())
                                                 && inboundFlight.getDestination().equals(destination)
-                                                && inboundFlight.getDepartureTime() - outboundFlight.getArrivalTime() > 1 * 3600 * 1000
                                                 && inboundFlight.getDepartureTime() - outboundFlight.getArrivalTime() <= 12 * 3600 * 1000)
                                 .map(inboundFlight -> new Flight[]{outboundFlight, inboundFlight}))
                 .collect(Collectors.toList());

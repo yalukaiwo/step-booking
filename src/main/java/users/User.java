@@ -61,10 +61,6 @@ public class User implements Serializable, HasId {
         this.bookings = bookings;
     }
 
-    public Passenger getPassenger() {
-        return passenger;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -1,18 +1,20 @@
+package users;
+
 import bookings.Booking;
 import flights.*;
 import org.junit.jupiter.api.*;
 import passenger.Passenger;
-import users.*;
 
 import java.io.*;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UsersServiceTest {
+public class UsersControllerTest {
     private final String fileName = "test.bin";
-    private UsersDAO usersDAO = new UsersDAO(new File(fileName));
-    private UsersService usersService = new UsersService(usersDAO);
+    private final UsersDAO usersDAO = new UsersDAO(new File(fileName));
+    private final UsersService usersService = new UsersService(usersDAO);
+    private final UsersController usersController = new UsersController(usersService);
 
     private final InputStream originalSystemIn = System.in;
     private ByteArrayInputStream inputStream;
@@ -50,17 +52,17 @@ public class UsersServiceTest {
     void save() throws IOException {
         List<User> users = new ArrayList<>();
         users.add(user);
-        usersService.save(user);
-        List<User> savedUsers = usersService.readAll();
+        usersController.save(user);
+        List<User> savedUsers = usersController.readAll();
         assertEquals(users.size(), savedUsers.size());
         assertEquals(users.get(0), savedUsers.get(0));
     }
 
     @Test
     void delete() throws IOException {
-        usersService.save(user);
-        usersService.delete(user.getId());
-        List<User> users = usersService.readAll();
+        usersController.save(user);
+        usersController.delete(user.getId());
+        List<User> users = usersController.readAll();
         assertTrue(users.isEmpty());
     }
 
@@ -68,8 +70,8 @@ public class UsersServiceTest {
     void getByUserName() throws IOException {
         String username = "testUser";
         User user = new User("1", username, "password", new Passenger("Max", "Zymyn"));
-        usersService.save(user);
-        User foundUser = usersService.getUserByUsername(username);
+        usersController.save(user);
+        User foundUser = usersController.getUserByUsername(username);
         assertNotNull(foundUser);
         assertEquals(user, foundUser);
     }
@@ -79,8 +81,8 @@ public class UsersServiceTest {
         String username = "testUser";
         String password = "password";
         User user = new User("1", username, password, new Passenger("Max", "Zymyn"));
-        usersService.save(user);
-        User authenticatedUser = usersService.authenticate(username, password);
+        usersController.save(user);
+        User authenticatedUser = usersController.authenticate(username, password);
         assertNotNull(authenticatedUser);
         assertEquals(user, authenticatedUser);
     }
@@ -90,52 +92,52 @@ public class UsersServiceTest {
         String username = "testUser";
         String password = "password";
         User user = new User("1", username, password, new Passenger("Max", "Zymyn"));
-        usersService.save(user);
-        User authenticatedUser = usersService.authenticate(username, "wrongPassword");
+        usersController.save(user);
+        User authenticatedUser = usersController.authenticate(username, "wrongPassword");
         assertNull(authenticatedUser);
     }
 
     @Test
     void updateUser() throws IOException {
-        usersService.save(user);
+        usersController.save(user);
 
         user.setUsername("newUsername");
-        usersService.updateUser(user);
+        usersController.updateUser(user);
 
-        User updatedUser = usersService.getUserByUsername("newUsername");
+        User updatedUser = usersController.getUserByUsername("newUsername");
         assertEquals("newUsername", user.getUsername());
         assertEquals(user, updatedUser);
     }
 
     @Test
     void readAll() throws IOException {
-        usersService.save(user);
-        usersService.save(user);
-        List<User> allUsers = usersService.readAll();
+        usersController.save(user);
+        usersController.save(user);
+        List<User> allUsers = usersController.readAll();
         assertEquals(2, allUsers.size());
     }
 
     @Test
     void updatePassword() throws IOException {
-        usersService.save(user);
-        user = usersService.updatePassword(user.getUsername(), "newPassword");
+        usersController.save(user);
+        user = usersController.updatePassword(user.getUsername(), "newPassword");
         assertEquals("newPassword", user.getPassword());
     }
 
     @Test
     void findUserBookingById() throws IOException {
-        usersService.save(userWithBooking);
-        Optional<Booking> foundBooking = usersService.findUserBookingById(userWithBooking, userWithBooking.getBookings().get(0).getId());
+        usersController.save(userWithBooking);
+        Optional<Booking> foundBooking = usersController.findUserBookingById(userWithBooking, userWithBooking.getBookings().get(0).getId());
         assertTrue(foundBooking.isPresent());
         assertEquals(userWithBooking.getBookings().get(0), foundBooking.get());
     }
 
     @Test
     void deleteBooking() throws IOException {
-        usersService.save(userWithBooking);
+        usersController.save(userWithBooking);
         String bookingId = userWithBooking.getBookings().get(0).getId();
-        usersService.deleteBooking(userWithBooking, bookingId);
-        Optional<Booking> deletedBooking = usersService.findUserBookingById(userWithBooking, bookingId);
+        usersController.deleteBooking(userWithBooking, bookingId);
+        Optional<Booking> deletedBooking = usersController.findUserBookingById(userWithBooking, bookingId);
         assertFalse(deletedBooking.isPresent());
     }
 
@@ -146,9 +148,24 @@ public class UsersServiceTest {
         Flight flight = new Flight(City.KYIV, City.TORONTO, Airline.AZAL, 100.0, System.currentTimeMillis(), System.currentTimeMillis() + 100000, 100);
         Booking booking = new Booking(flight, passengers);
 
-        usersService.addBooking(user, booking);
+        usersController.addBooking(user, booking);
 
         assertEquals(1, user.getBookings().size());
         assertTrue(user.getBookings().contains(booking));
+    }
+
+    @Test
+    void userExists_UserExists_ReturnsTrue() throws IOException {
+        String existingUsername = "existingUser";
+        usersController.save(new User("1", existingUsername, "password", null));
+        boolean exists = usersController.userExists(existingUsername);
+        assertTrue(exists);
+    }
+
+    @Test
+    void userExists_UserDoesNotExist_ReturnsFalse() throws IOException {
+        String nonExistingUsername = "nonExistingUser";
+        boolean exists = usersController.userExists(nonExistingUsername);
+        assertFalse(exists);
     }
 }

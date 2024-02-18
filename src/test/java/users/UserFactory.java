@@ -1,3 +1,5 @@
+package users;
+
 import flights.Airline;
 import flights.City;
 import passenger.Passenger;

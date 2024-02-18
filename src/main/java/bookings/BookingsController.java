@@ -23,15 +23,6 @@ public class BookingsController {
         }
     }
 
-    public Optional<Booking> create(Flight flight, Passenger... passengers) throws IOException {
-        try {
-            flight.incrementPassengers(passengers.length);
-            return Optional.of(service.create(flight, List.of(passengers)));
-        } catch (PassengerOverflowException e) {
-            return Optional.empty();
-        }
-    }
-
     public void delete(Booking b) throws IOException {
         try {
             b.getFlight().decrementPassengers(b.getPassengers().size());
@@ -55,14 +46,6 @@ public class BookingsController {
 
     public Booking getById(String id) throws IOException, BookingNotFoundException {
         return service.getById(id);
-    }
-
-    public List<Booking> getById(List<String> ids) throws IOException {
-        return service.getAll().stream().filter(b -> ids.contains(b.getId())).toList();
-    }
-
-    public List<Booking> getAll() throws IOException {
-        return service.getAll();
     }
 
     public void save(List<Booking> bs) throws IOException {

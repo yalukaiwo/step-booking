@@ -12,8 +12,9 @@ public class Main {
         BookingsController bookingsController = new BookingsController(new BookingsService(new BookingsDAO(new File("bookings.bin"))));
         FlightsController flightsController = new FlightsController(new FlightsService(new FlightsDAO(new File("flights.bin"))));
 
+        // new random flights have to be generated using the GenerateRandom.java file. File with existing flight database is provided (around 5000 flights)
+
         ConsoleApp consoleApp = new ConsoleApp(usersController, bookingsController, flightsController);
-        consoleApp.generateRandomFlights(5);
         consoleApp.start();
     }
 }

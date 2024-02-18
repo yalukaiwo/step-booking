@@ -27,7 +27,7 @@ public class Booking implements HasId, Serializable {
         this.id = generateId();
         this.passengers = passengers;
         this.flight = flight;
-        // passenger class is randomized upon booking creation because i am too lazy to actually implement that :)
+        // passenger class is randomized upon booking creation because I am too lazy to actually implement that :)
         this.passengerClass = PassengerClass.getRandom();
     }
 
@@ -64,7 +64,7 @@ public class Booking implements HasId, Serializable {
 
         for (Passenger passenger : passengers) {
             String bookingId = padString(getId(), getId().length());
-            String paddedPassengerName = padString(passenger.getName() + " " + passenger.getSurname(), 22);
+            String paddedPassengerName = padString(passenger.name() + " " + passenger.surname(), 22);
             String paddedPassengerClass = padString(getPassengerClass().toString(), 20);
             String paddedPassengerCost = padString(String.valueOf(this.flight.getTicketCost()), 5);
             String paddedFlightId = padString(this.flight.getId(), 36);
